@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Interactive security command centre for Azure AI Foundry — 7 mandatory layers, 10 critical gap analyses, and 8 third-party integrations.">
-<meta property="og:title" content="Azure AI Foundry — Security Command Centre">
+<meta name="description" content="Interactive security command centre for Microsoft Foundry — 7 mandatory layers, 10 critical gap analyses, and 8 third-party integrations.">
+<meta property="og:title" content="Microsoft Foundry — Security Command Centre">
 <meta property="og:description" content="Interactive blueprint: 7 security layers, 10 gaps, 8 third-party tools covering OWASP ASI, MCP, LLM, and RAG.">
 <meta property="og:type" content="website">
-<title>Azure AI Foundry — Security Command Centre v2</title>
+<title>Microsoft Foundry — Security Command Centre v2</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -298,6 +298,129 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
 /* ANIMATIONS */
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fadeIn{animation:fadeIn .3s ease forwards}
+
+/* ═══════ LEARN & EXPLAIN — SHARED STYLES ═══════ */
+.learn-hero{background:linear-gradient(135deg,rgba(79,124,255,.08) 0%,rgba(124,58,237,.06) 100%);border:1px solid rgba(79,124,255,.2);border-radius:8px;padding:22px 26px;margin-bottom:18px;position:relative;overflow:hidden}
+.learn-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 400px 200px at 90% 0%,rgba(124,58,237,.12),transparent);pointer-events:none}
+.learn-hero h2{font-family:var(--sans);font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-.01em}
+.learn-hero p{font-size:12px;color:var(--text2);line-height:1.7;max-width:820px;position:relative}
+.learn-kicker{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.2);border-radius:99px;margin-bottom:10px}
+.learn-kicker::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);animation:kickerDot 1.8s ease-in-out infinite}
+@keyframes kickerDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+.anim-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+.anim-stage{position:relative;width:100%;min-height:360px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+.explain-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+@media(max-width:1100px){.explain-grid{grid-template-columns:1fr}}
+
+.explain-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px}
+.explain-card h3{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.explain-card h3 .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.explain-card p{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:10px}
+.explain-card ul{list-style:none;padding:0}
+.explain-card ul li{font-size:12px;color:var(--text2);line-height:1.7;padding:6px 0 6px 20px;position:relative;border-bottom:1px solid var(--border)}
+.explain-card ul li::before{content:'▸';position:absolute;left:4px;color:var(--accent);font-size:10px;top:8px}
+.explain-card ul li:last-child{border-bottom:none}
+.explain-card ul li strong{color:var(--text);font-weight:500}
+
+/* ═══════ CAF DECISION TREE ═══════ */
+@keyframes caf-node-glow{0%{filter:drop-shadow(0 0 0px rgba(79,124,255,0))}50%{filter:drop-shadow(0 0 10px rgba(79,124,255,.6))}100%{filter:drop-shadow(0 0 0px rgba(79,124,255,0))}}
+.caf-node-active{animation:caf-node-glow 2s ease-in-out infinite}
+@keyframes caf-path-draw{from{stroke-dashoffset:var(--pl,200)}to{stroke-dashoffset:0}}
+.caf-path{stroke-dasharray:var(--pl,200);stroke-dashoffset:var(--pl,200);animation:caf-path-draw 1.2s ease-out forwards}
+@keyframes caf-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.caf-flow-dot{animation:caf-pulse 1.6s ease-in-out infinite}
+
+/* ═══════ FOUNDRY WHAT'S NEW ═══════ */
+.foundry-feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.foundry-feat{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:8px;padding:16px;position:relative;overflow:hidden;opacity:0;transform:translateY(16px);animation:foundry-rise .6s cubic-bezier(.22,1,.36,1) forwards;transition:border-color .2s,transform .2s}
+.foundry-feat:hover{border-color:rgba(79,124,255,.4);transform:translateY(-3px)}
+.foundry-feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));background-size:200% 100%;animation:foundry-shimmer 3s linear infinite}
+@keyframes foundry-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes foundry-rise{to{opacity:1;transform:translateY(0)}}
+.foundry-feat:nth-child(1){animation-delay:.05s}.foundry-feat:nth-child(2){animation-delay:.15s}.foundry-feat:nth-child(3){animation-delay:.25s}.foundry-feat:nth-child(4){animation-delay:.35s}.foundry-feat:nth-child(5){animation-delay:.45s}.foundry-feat:nth-child(6){animation-delay:.55s}.foundry-feat:nth-child(7){animation-delay:.65s}.foundry-feat:nth-child(8){animation-delay:.75s}.foundry-feat:nth-child(9){animation-delay:.85s}
+.foundry-feat-tag{display:inline-block;font-family:var(--mono);font-size:9px;color:var(--accent);padding:2px 7px;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.2);border-radius:99px;letter-spacing:.05em;margin-bottom:8px}
+.foundry-feat h4{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+.foundry-feat p{font-size:11px;color:var(--text2);line-height:1.6}
+
+.foundry-hero-anim{width:100%;height:180px;display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:14px}
+.foundry-orbit{position:absolute;border:1px solid rgba(79,124,255,.14);border-radius:50%;animation:foundry-spin 30s linear infinite}
+.foundry-orbit.o1{width:280px;height:280px;animation-duration:40s}
+.foundry-orbit.o2{width:200px;height:200px;animation-duration:28s;animation-direction:reverse;border-color:rgba(124,58,237,.18)}
+.foundry-orbit.o3{width:120px;height:120px;animation-duration:20s;border-color:rgba(6,214,160,.18)}
+@keyframes foundry-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.foundry-orbit .orbit-node{position:absolute;width:28px;height:28px;background:var(--surface);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;top:-14px;left:50%;margin-left:-14px;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.foundry-core{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;color:#fff;font-size:11px;letter-spacing:.04em;box-shadow:0 0 40px rgba(79,124,255,.4);position:relative;z-index:2;animation:foundry-core-pulse 3s ease-in-out infinite}
+@keyframes foundry-core-pulse{0%,100%{box-shadow:0 0 40px rgba(79,124,255,.4)}50%{box-shadow:0 0 60px rgba(124,58,237,.6)}}
+
+/* ═══════ AGENTIC LOOP ═══════ */
+.agentic-stage{position:relative;width:560px;height:360px;max-width:100%}
+@keyframes agentic-pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(79,124,255,.35)}50%{transform:scale(1.05);box-shadow:0 0 0 12px rgba(79,124,255,0)}}
+.agentic-brain{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(124,58,237,.35),rgba(79,124,255,.2));border:1px solid rgba(124,58,237,.4);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text);letter-spacing:.04em;animation:agentic-pulse 2.5s ease-in-out infinite;z-index:2}
+.agentic-stage .loop-node{position:absolute;width:98px;padding:10px 0;text-align:center;background:var(--surface);border:1px solid var(--border2);border-radius:6px;font-family:var(--mono);font-size:10px;color:var(--text);letter-spacing:.04em;transition:border-color .3s}
+.agentic-stage .loop-node.active{border-color:var(--accent);color:var(--accent);box-shadow:0 0 14px rgba(79,124,255,.3)}
+.agentic-stage .loop-node .ln-icon{font-size:18px;display:block;margin-bottom:4px}
+.loop-perceive{top:0;left:50%;margin-left:-49px}
+.loop-reason{top:80px;right:30px}
+.loop-plan{bottom:80px;right:30px}
+.loop-act{bottom:0;left:50%;margin-left:-49px}
+.loop-observe{top:90px;left:30px}
+.agentic-svg{position:absolute;inset:0;pointer-events:none}
+@keyframes agentic-orbit{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+/* ═══════ MCP HANDSHAKE ═══════ */
+.mcp-stage{display:flex;justify-content:space-between;align-items:stretch;width:100%;max-width:880px;gap:14px;padding:10px 20px}
+.mcp-col{flex:1;display:flex;flex-direction:column;align-items:center}
+.mcp-box{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:14px;text-align:center;font-family:var(--sans);font-size:12px;font-weight:600;color:var(--text)}
+.mcp-box .mcp-sub{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;display:block;font-weight:400}
+.mcp-lane{flex:1;position:relative;margin:0 -6px;min-height:280px}
+.mcp-msg{position:absolute;left:8px;right:8px;padding:8px 10px;border-radius:4px;font-family:var(--mono);font-size:10px;line-height:1.5;background:var(--surface2);border:1px solid var(--border);opacity:0;animation:mcp-msg-in 6s ease-in-out infinite}
+.mcp-msg.out{background:rgba(79,124,255,.08);border-color:rgba(79,124,255,.25);color:var(--accent);text-align:left}
+.mcp-msg.in{background:rgba(6,214,160,.08);border-color:rgba(6,214,160,.25);color:var(--accent3);text-align:right}
+@keyframes mcp-msg-in{0%{opacity:0;transform:translateX(var(--from,-30px))}10%{opacity:1;transform:translateX(0)}70%{opacity:1;transform:translateX(0)}100%{opacity:0}}
+.mcp-arrow{color:var(--text3);font-family:var(--mono);font-size:12px;text-align:center;margin:10px 0}
+
+/* ═══════ RAG PIPELINE ═══════ */
+.rag-stage{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;max-width:920px;padding:20px 10px;position:relative}
+.rag-step{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 10px;text-align:center;position:relative;transition:border-color .3s,transform .3s}
+.rag-step.active{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 6px 20px rgba(79,124,255,.2)}
+.rag-step.active .rag-step-icon{color:var(--accent);animation:rag-icon-pop .4s ease-out}
+.rag-step-icon{font-size:22px;margin-bottom:6px;color:var(--text3);transition:color .3s}
+@keyframes rag-icon-pop{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
+.rag-step-title{font-family:var(--mono);font-size:10px;color:var(--text);letter-spacing:.06em;text-transform:uppercase}
+.rag-step-desc{font-size:10px;color:var(--text3);margin-top:4px;line-height:1.4}
+.rag-connector{flex:0 0 28px;height:1px;background:var(--border);position:relative}
+.rag-connector::after{content:'▸';position:absolute;top:-8px;right:-6px;color:var(--text3);font-size:10px}
+.rag-packet{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--accent);top:-4px;left:0;box-shadow:0 0 10px var(--accent);animation:rag-travel 6s linear infinite;opacity:0}
+@keyframes rag-travel{0%{left:0;opacity:0}5%{opacity:1}95%{opacity:1;left:100%}100%{left:100%;opacity:0}}
+.rag-vector-space{margin-top:18px;padding:16px;border:1px dashed var(--border2);border-radius:6px;text-align:center;position:relative;min-height:80px}
+.rag-vector-title{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.rag-vec-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin:3px;background:rgba(79,124,255,.3);border:1px solid var(--accent);animation:rag-vec-glow 2s ease-in-out infinite}
+@keyframes rag-vec-glow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.2);box-shadow:0 0 8px var(--accent)}}
+.rag-vec-dot:nth-child(odd){animation-delay:.4s}
+.rag-vec-dot:nth-child(3n){animation-delay:.8s;background:rgba(124,58,237,.3);border-color:var(--accent2)}
+.rag-vec-dot:nth-child(5n){animation-delay:1.2s;background:rgba(6,214,160,.3);border-color:var(--accent3)}
+
+/* ═══════ LLM TOKEN FLOW ═══════ */
+.llm-stage{display:flex;align-items:stretch;justify-content:space-between;gap:20px;width:100%;max-width:860px;min-height:340px;padding:16px}
+.llm-col{flex:1;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center}
+.llm-col-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.llm-token{padding:5px 10px;border-radius:4px;font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);animation:llm-token-in .5s ease-out backwards}
+.llm-token.input{background:rgba(79,124,255,.1);border-color:rgba(79,124,255,.25);color:var(--accent)}
+.llm-token.output{background:rgba(6,214,160,.1);border-color:rgba(6,214,160,.3);color:var(--accent3);opacity:0;animation:llm-token-emit .6s ease-out forwards}
+@keyframes llm-token-in{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes llm-token-emit{0%{opacity:0;transform:translateX(-16px)}100%{opacity:1;transform:translateX(0)}}
+.llm-token.output:nth-child(2){animation-delay:1.2s}.llm-token.output:nth-child(3){animation-delay:1.8s}.llm-token.output:nth-child(4){animation-delay:2.4s}.llm-token.output:nth-child(5){animation-delay:3.0s}.llm-token.output:nth-child(6){animation-delay:3.6s}.llm-token.output:nth-child(7){animation-delay:4.2s}
+.llm-brain{flex:0 0 180px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.llm-attn-svg{width:180px;height:260px}
+.llm-attn-line{stroke:rgba(124,58,237,.3);stroke-width:1;fill:none;animation:llm-attn-pulse 3s ease-in-out infinite}
+@keyframes llm-attn-pulse{0%,100%{stroke:rgba(124,58,237,.12)}50%{stroke:rgba(124,58,237,.8);stroke-width:1.5}}
+.llm-attn-line:nth-child(2n){animation-delay:.4s}
+.llm-attn-line:nth-child(3n){animation-delay:.8s}
+.llm-attn-node{fill:var(--accent2);animation:llm-node-pulse 2.2s ease-in-out infinite}
+.llm-attn-node:nth-child(2n){animation-delay:.5s}
+@keyframes llm-node-pulse{0%,100%{fill:rgba(124,58,237,.5);r:3}50%{fill:var(--accent2);r:5}}
 @keyframes typing{0%,100%{opacity:1}50%{opacity:0}}
 .typing span{animation:typing 1s ease-in-out infinite}
 .typing span:nth-child(2){animation-delay:.2s}
@@ -317,7 +440,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
     <div class="login-logo">
       <div class="icon">🛡</div>
       <div>
-        <div class="brand">Azure AI Foundry <span class="v2-badge">v2</span></div>
+        <div class="brand">Microsoft Foundry <span class="v2-badge">v2</span></div>
         <div class="sub">SECURITY COMMAND CENTRE · CONFIDENTIAL</div>
       </div>
     </div>
@@ -326,7 +449,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
     <div style="background:rgba(79,124,255,0.06);border:1px solid rgba(79,124,255,0.22);border-left:3px solid var(--accent);border-radius:3px;padding:12px 14px;margin-bottom:22px;">
       <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px;font-family:var(--mono);">Demo · Reference blueprint</div>
       <div style="font-size:11.5px;color:var(--text);line-height:1.65;margin-bottom:8px;">
-        Interactive blueprint mapping how Azure AI Foundry's native controls, known gaps, and third-party integrations fit together. Data is based on published Microsoft documentation, OWASP frameworks, and real 2025 incidents. Percentages reflect the <em>maturity of each layer in a reference deployment</em> — not a live scan of anyone's tenant.
+        Interactive blueprint mapping how Microsoft Foundry's native controls, known gaps, and third-party integrations fit together. Data is based on published Microsoft documentation, OWASP frameworks, and real 2025 incidents. Percentages reflect the <em>maturity of each layer in a reference deployment</em> — not a live scan of anyone's tenant.
       </div>
       <div style="font-size:10px;color:var(--text3);line-height:1.55;font-style:italic;">
         Independent reference model. Not affiliated with or endorsed by Microsoft.
@@ -350,7 +473,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
       </div>
     </div>
     <button class="login-btn" onclick="doLogin()">Sign in with Entra ID →</button>
-    <div class="login-hint">v2 — includes all tools & gaps from the Azure AI Foundry Security Blueprint slides<br><span onclick="alert('admin@contoso.com (any password). Pick any role.')">View demo credentials</span></div>
+    <div class="login-hint">v2 — includes all tools & gaps from the Microsoft Foundry Security Blueprint slides<br><span onclick="alert('admin@contoso.com (any password). Pick any role.')">View demo credentials</span></div>
   </div>
 </div>
 
@@ -373,8 +496,8 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
 <!-- ════ APP ════ -->
 <div id="app">
   <div class="topbar">
-    <div class="topbar-logo"><span>🛡</span> AI Foundry SCC <span class="v2-badge">v2</span><div class="dot"></div></div>
-    <div class="topbar-title" id="topbar-context">AZURE AI FOUNDRY — SECURITY COMMAND CENTRE v2</div>
+    <div class="topbar-logo"><span>🛡</span> Microsoft Foundry SCC <span class="v2-badge">v2</span><div class="dot"></div></div>
+    <div class="topbar-title" id="topbar-context">MICROSOFT FOUNDRY — SECURITY COMMAND CENTRE v2</div>
     <div title="This is an independent reference blueprint. Static demo data — not connected to any tenant. Not affiliated with or endorsed by Microsoft." style="font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;color:var(--warn);background:rgba(255,165,2,.1);border:1px solid rgba(255,165,2,.3);padding:3px 9px;border-radius:3px;cursor:help;">DEMO · REFERENCE</div>
     <div class="topbar-user">
       <div id="topbar-avatar" class="topbar-avatar">AD</div>
@@ -416,6 +539,14 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
         <div class="nav-item" onclick="showView('compliance',this)"><span class="nav-icon">✓</span> Compliance Map</div>
         <div class="nav-item" onclick="showView('checklist',this)"><span class="nav-icon">≡</span> Dev Checklist</div>
         <div class="nav-item" onclick="showView('audit',this)"><span class="nav-icon">▤</span> Audit Log<span class="nav-badge green">Live</span></div>
+
+        <div class="nav-label">Learn &amp; Explain</div>
+        <div class="nav-item" onclick="showView('foundry-new',this)"><span class="nav-icon">✦</span> Foundry — What's New<span class="nav-badge">New</span></div>
+        <div class="nav-item" onclick="showView('caf-tree',this)"><span class="nav-icon">◆</span> CAF AI Decision Tree</div>
+        <div class="nav-item" onclick="showView('learn-agentic',this)"><span class="nav-icon">⚡</span> Agentic AI — Explained</div>
+        <div class="nav-item" onclick="showView('learn-mcp',this)"><span class="nav-icon">⬢</span> MCP — Explained</div>
+        <div class="nav-item" onclick="showView('learn-rag',this)"><span class="nav-icon">◉</span> RAG — Explained</div>
+        <div class="nav-item" onclick="showView('learn-llm',this)"><span class="nav-icon">◑</span> LLM — Explained</div>
       </div>
     </div>
 
@@ -427,14 +558,14 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
         <div class="breadcrumb">SCC v2 / <span>Dashboard</span></div>
         <div class="page-header scan-sweep">
           <h1>Security Command Centre <span class="v2-badge" style="font-size:12px">v2</span></h1>
-          <p>Azure AI Foundry Security Blueprint — 7 layers · 36 tools · 10 gap analyses · 8 third-party integrations · 18 test scenarios</p>
+          <p>Microsoft Foundry Security Blueprint — 7 layers · 36 tools · 10 gap analyses · 8 third-party integrations · 18 test scenarios</p>
         </div>
         <div style="background:linear-gradient(135deg,rgba(79,124,255,0.05),rgba(124,58,237,0.05));border:1px solid rgba(79,124,255,0.2);border-left:3px solid var(--accent);border-radius:4px;padding:12px 16px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start;">
           <div style="flex-shrink:0;width:28px;height:28px;border-radius:4px;background:rgba(79,124,255,0.12);display:flex;align-items:center;justify-content:center;font-size:14px;">ℹ️</div>
           <div>
             <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;font-family:var(--mono);">About this blueprint</div>
             <div style="font-size:12px;color:var(--text);line-height:1.65;">
-              This is an <strong>interactive reference blueprint</strong> that maps how Azure AI Foundry's native controls, known gaps, and third-party integrations fit together. The data is based on published Microsoft documentation, OWASP frameworks, and real 2025 incidents. The percentages reflect the maturity of each layer in a reference deployment — not a live scan of anyone's tenant.
+              This is an <strong>interactive reference blueprint</strong> that maps how Microsoft Foundry's native controls, known gaps, and third-party integrations fit together. The data is based on published Microsoft documentation, OWASP frameworks, and real 2025 incidents. The percentages reflect the maturity of each layer in a reference deployment — not a live scan of anyone's tenant.
             </div>
             <div style="font-size:10.5px;color:var(--text3);margin-top:6px;font-style:italic;">
               Independent reference model. Not affiliated with or endorsed by Microsoft. Based on public documentation.
@@ -520,7 +651,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
       <!-- ── GAPS ── -->
       <div id="view-gaps" class="view fadeIn">
         <div class="breadcrumb">SCC v2 / Gap Analysis / <span>10 Critical Gaps</span></div>
-        <div class="page-header"><h1>10 Critical Gaps in Azure AI Foundry Native Controls</h1><p>From the official blueprint slides. These are what Foundry alone cannot cover — and the third-party tools that fill each gap.</p></div>
+        <div class="page-header"><h1>10 Critical Gaps in Microsoft Foundry Native Controls</h1><p>From the official blueprint slides. These are what Foundry alone cannot cover — and the third-party tools that fill each gap.</p></div>
         <div class="gap-grid" id="gap-cards"></div>
       </div>
 
@@ -534,7 +665,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
       <!-- ── NATIVE CONTROLS ── -->
       <div id="view-native" class="view fadeIn">
         <div class="breadcrumb">SCC v2 / Governance / <span>Native Controls</span></div>
-        <div class="page-header"><h1>Azure AI Foundry Native Controls</h1><p>What Foundry provides out of the box — before any third-party integration.</p></div>
+        <div class="page-header"><h1>Microsoft Foundry Native Controls</h1><p>What Foundry provides out of the box — before any third-party integration.</p></div>
         <div class="card"><table class="data-table"><thead><tr><th>Control</th><th>What it does</th><th>Risks mitigated</th><th>Status</th></tr></thead><tbody id="native-table"></tbody></table></div>
       </div>
 
@@ -613,6 +744,519 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
           </div>
           <div style="display:grid;grid-template-columns:76px 88px 1fr 62px;gap:0;font-size:9px;color:var(--text3);letter-spacing:.06em;padding:5px 0;border-bottom:1px solid var(--border)"><span>TIME</span><span>TYPE</span><span>EVENT</span><span style="text-align:right">STATUS</span></div>
           <div id="audit-log" style="max-height:460px;overflow-y:auto"></div>
+        </div>
+      </div>
+
+      <!-- ── FOUNDRY — WHAT'S NEW ── -->
+      <div id="view-foundry-new" class="view fadeIn">
+        <div class="breadcrumb">Microsoft Foundry / <span>What's New</span></div>
+        <div class="learn-hero">
+          <span class="learn-kicker">Ignite 2025 · Jan 2026 rename</span>
+          <h2>Microsoft Foundry — the evolution of Azure AI Foundry</h2>
+          <p>Announced at Ignite 2025 on 18 November 2025 and formalised in the January 2026 Product Terms, <strong>Azure AI Foundry is now Microsoft Foundry</strong>. Dropping "Azure" signals that agents are first-class citizens across the entire Microsoft ecosystem — not just another Azure service. This tab explains what's new under the hood, beyond the rebrand.</p>
+        </div>
+
+        <div class="anim-panel">
+          <div class="foundry-hero-anim">
+            <div class="foundry-orbit o1">
+              <div class="orbit-node" title="Azure OpenAI">◔</div>
+            </div>
+            <div class="foundry-orbit o2">
+              <div class="orbit-node" title="Anthropic Claude" style="left:90%;margin-left:-14px">◑</div>
+            </div>
+            <div class="foundry-orbit o3">
+              <div class="orbit-node" title="11,000+ models" style="left:10%;margin-left:-14px">◒</div>
+            </div>
+            <div class="foundry-core">MS FOUNDRY</div>
+          </div>
+        </div>
+
+        <div class="foundry-feature-grid">
+          <div class="foundry-feat">
+            <span class="foundry-feat-tag">Rename</span>
+            <h4>Azure AI Foundry → Microsoft Foundry</h4>
+            <p>Formalised 1 January 2026 in the Microsoft Product Terms. Azure AI Foundry Models are now "Microsoft Foundry Models (includes Azure OpenAI)". No functional break — all existing workloads continue to run.</p>
+          </div>
+          <div class="foundry-feat">
+            <span class="foundry-feat-tag">Multi-model</span>
+            <h4>Anthropic Claude, plus OpenAI, Meta, Cohere, Mistral</h4>
+            <p>Foundry now serves models from non-OpenAI providers natively, with over 11,000 models in the catalogue. Foundry's pitch is model-agnostic: pick the best model for each task without switching platforms.</p>
+          </div>
+          <div class="foundry-feat">
+            <span class="foundry-feat-tag">Foundry IQ</span>
+            <h4>Foundry IQ — unified enterprise grounding</h4>
+            <p>A single retrieval layer that connects agents to SharePoint, OneDrive, Fabric, Teams chat, Microsoft Graph and third-party sources. Removes the need to hand-wire each knowledge source per agent.</p>
+          </div>
+          <div class="foundry-feat">
+            <span class="foundry-feat-tag">Agent Service</span>
+            <h4>Foundry Agent Service (GA)</h4>
+            <p>Managed multi-agent orchestration with BYOS, private networking, and Entra-scoped identity per agent. LangGraph and Semantic Kernel both plug in. Replaces custom orchestration code for most teams.</p>
+          </div>
+          <div class="foundry-feat">
+            <span class="foundry-feat-tag">Quality</span>
+            <h4>Task Adherence (preview)</h4>
+            <p>Runtime evaluator that scores whether an agent actually completed the task it was asked to do — catches "sounds right but wrong" outcomes. Integrates with the Agent Service for automatic flagging.</p>
+          </div>
+          <div class="foundry-feat">
+            <span class="foundry-feat-tag">Governance</span>
+            <h4>Entra Agent ID + global admin governance</h4>
+            <p>Every agent is a first-class Entra identity. Global admins can enumerate, audit and revoke agents from a single pane — critical for organisations nervous about agent sprawl.</p>
+          </div>
+          <div class="foundry-feat">
+            <span class="foundry-feat-tag">Fine-tuning</span>
+            <h4>Azure Developer CLI fine-tuning extension</h4>
+            <p>Fine-tune models directly from the terminal without leaving your repo. Versioned runs, evaluation, and promotion to Foundry endpoints scripted end-to-end.</p>
+          </div>
+          <div class="foundry-feat">
+            <span class="foundry-feat-tag">Tools</span>
+            <h4>Computer-use, image-gen, SharePoint &amp; Fabric tools</h4>
+            <p>Built-in agent tools for navigating desktop UIs, generating images, querying SharePoint and Fabric data agents — each in managed preview and callable via function-calling.</p>
+          </div>
+          <div class="foundry-feat">
+            <span class="foundry-feat-tag">Local</span>
+            <h4>Foundry Local SDK</h4>
+            <p>Run Foundry agents and models on-device or on-prem for sovereignty, air-gapped or low-latency scenarios. Legacy SDK still supported; a migration guide ships with the new SDK.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CAF AI DECISION TREE ── -->
+      <div id="view-caf-tree" class="view fadeIn">
+        <div class="breadcrumb">Learn &amp; Explain / <span>CAF AI Agent Decision Tree</span></div>
+        <div class="learn-hero">
+          <span class="learn-kicker">Microsoft Cloud Adoption Framework · updated Dec 2025</span>
+          <h2>AI Agent Decision Tree</h2>
+          <p>The CAF decision tree walks you from <em>"I have a potential agent use case"</em> through two parallel tracks — Business Plan (should you build an agent at all?) and Technology Plan (if yes, what do you build it on?). The animation below walks the path a typical enterprise takes when evaluating an agent use case.</p>
+        </div>
+
+        <div class="anim-panel">
+          <div class="anim-stage" style="min-height:520px">
+            <svg viewBox="0 0 960 520" width="100%" height="520" xmlns="http://www.w3.org/2000/svg" style="max-width:960px">
+              <defs>
+                <marker id="caf-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                  <polygon points="0 0, 8 3, 0 6" fill="rgba(79,124,255,.6)"/>
+                </marker>
+                <linearGradient id="caf-grad" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0" stop-color="#4f7cff"/>
+                  <stop offset="1" stop-color="#7c3aed"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Root -->
+              <g class="caf-node-active">
+                <rect x="380" y="12" width="200" height="48" rx="6" fill="url(#caf-grad)" opacity=".18" stroke="url(#caf-grad)" stroke-width="1.5"/>
+                <text x="480" y="33" text-anchor="middle" fill="#e8edf5" font-family="Syne, sans-serif" font-weight="700" font-size="12">Potential agent use case</text>
+                <text x="480" y="50" text-anchor="middle" fill="#7c8ca6" font-family="JetBrains Mono, monospace" font-size="9">START HERE</text>
+              </g>
+
+              <!-- Split into Business Plan + Technology Plan -->
+              <path class="caf-path" style="--pl:120" d="M 480 60 L 480 100 L 240 100 L 240 130" stroke="url(#caf-grad)" stroke-width="1.5" fill="none" marker-end="url(#caf-arrow)" opacity=".7"/>
+              <path class="caf-path" style="--pl:120;animation-delay:.3s" d="M 480 60 L 480 100 L 720 100 L 720 130" stroke="url(#caf-grad)" stroke-width="1.5" fill="none" marker-end="url(#caf-arrow)" opacity=".7"/>
+
+              <!-- Business Plan box -->
+              <g>
+                <rect x="120" y="130" width="240" height="36" rx="4" fill="rgba(79,124,255,.08)" stroke="rgba(79,124,255,.3)" stroke-width="1"/>
+                <text x="240" y="154" text-anchor="middle" fill="#4f7cff" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing=".08em">BUSINESS PLAN · DO YOU NEED AN AGENT?</text>
+              </g>
+
+              <!-- BP Q1: Structured / predictable? -->
+              <g>
+                <rect x="140" y="190" width="200" height="52" rx="6" fill="#111620" stroke="#2a334a" stroke-width="1"/>
+                <text x="240" y="210" text-anchor="middle" fill="#e8edf5" font-family="Inter, sans-serif" font-weight="500" font-size="11">Structured or predictable task?</text>
+                <text x="240" y="226" text-anchor="middle" fill="#7c8ca6" font-size="10">Clear, repeatable, strict rules</text>
+              </g>
+              <path class="caf-path" style="--pl:60;animation-delay:.9s" d="M 240 242 L 240 270" stroke="rgba(79,124,255,.5)" stroke-width="1.5" fill="none" marker-end="url(#caf-arrow)"/>
+
+              <!-- BP outcome 1: use code / non-gen AI -->
+              <g>
+                <rect x="120" y="270" width="240" height="44" rx="6" fill="rgba(255,165,2,.08)" stroke="rgba(255,165,2,.4)" stroke-width="1"/>
+                <text x="240" y="290" text-anchor="middle" fill="#ffa502" font-family="Inter, sans-serif" font-weight="600" font-size="11">→ Use code or non-generative AI</text>
+                <text x="240" y="306" text-anchor="middle" fill="#7c8ca6" font-size="9">GitHub · Fabric · ML models in Foundry</text>
+              </g>
+
+              <!-- BP Q2: Static knowledge retrieval? -->
+              <g>
+                <rect x="140" y="340" width="200" height="52" rx="6" fill="#111620" stroke="#2a334a" stroke-width="1"/>
+                <text x="240" y="360" text-anchor="middle" fill="#e8edf5" font-family="Inter, sans-serif" font-weight="500" font-size="11">Static Q&amp;A or content gen?</text>
+                <text x="240" y="376" text-anchor="middle" fill="#7c8ca6" font-size="10">No tools, no multi-step reasoning</text>
+              </g>
+              <path class="caf-path" style="--pl:60;animation-delay:1.3s" d="M 240 392 L 240 420" stroke="rgba(79,124,255,.5)" stroke-width="1.5" fill="none" marker-end="url(#caf-arrow)"/>
+
+              <!-- BP outcome 2: Classic RAG -->
+              <g>
+                <rect x="120" y="420" width="240" height="44" rx="6" fill="rgba(0,180,216,.08)" stroke="rgba(0,180,216,.4)" stroke-width="1"/>
+                <text x="240" y="440" text-anchor="middle" fill="#00b4d8" font-family="Inter, sans-serif" font-weight="600" font-size="11">→ Classic RAG (no agent needed)</text>
+                <text x="240" y="456" text-anchor="middle" fill="#7c8ca6" font-size="9">Build RAG in Microsoft Foundry</text>
+              </g>
+
+              <!-- Technology Plan box -->
+              <g>
+                <rect x="600" y="130" width="240" height="36" rx="4" fill="rgba(124,58,237,.08)" stroke="rgba(124,58,237,.3)" stroke-width="1"/>
+                <text x="720" y="154" text-anchor="middle" fill="#7c3aed" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing=".08em">TECHNOLOGY PLAN · WHERE TO BUILD</text>
+              </g>
+
+              <!-- TP Q: Does SaaS agent meet needs? -->
+              <g>
+                <rect x="620" y="190" width="200" height="52" rx="6" fill="#111620" stroke="#2a334a" stroke-width="1"/>
+                <text x="720" y="210" text-anchor="middle" fill="#e8edf5" font-family="Inter, sans-serif" font-weight="500" font-size="11">SaaS agent meets needs?</text>
+                <text x="720" y="226" text-anchor="middle" fill="#7c8ca6" font-size="10">M365 Copilot · Dynamics · Security</text>
+              </g>
+              <path class="caf-path" style="--pl:60;animation-delay:1.1s" d="M 720 242 L 720 270" stroke="rgba(124,58,237,.5)" stroke-width="1.5" fill="none" marker-end="url(#caf-arrow)"/>
+
+              <!-- TP YES: use SaaS -->
+              <g>
+                <rect x="600" y="270" width="240" height="44" rx="6" fill="rgba(6,214,160,.08)" stroke="rgba(6,214,160,.4)" stroke-width="1"/>
+                <text x="720" y="290" text-anchor="middle" fill="#06d6a0" font-family="Inter, sans-serif" font-weight="600" font-size="11">YES → Use SaaS agent</text>
+                <text x="720" y="306" text-anchor="middle" fill="#7c8ca6" font-size="9">M365 Copilot · GitHub · Dynamics 365</text>
+              </g>
+
+              <!-- TP NO: build custom -->
+              <path class="caf-path" style="--pl:60;animation-delay:1.5s" d="M 720 314 L 720 340" stroke="rgba(124,58,237,.5)" stroke-width="1.5" fill="none" marker-end="url(#caf-arrow)"/>
+              <g>
+                <rect x="620" y="340" width="200" height="52" rx="6" fill="#111620" stroke="#2a334a" stroke-width="1"/>
+                <text x="720" y="360" text-anchor="middle" fill="#e8edf5" font-family="Inter, sans-serif" font-weight="500" font-size="11">NO → Build custom</text>
+                <text x="720" y="376" text-anchor="middle" fill="#7c8ca6" font-size="10">Pick platform below</text>
+              </g>
+
+              <!-- Three custom-build options -->
+              <path class="caf-path" style="--pl:50;animation-delay:1.9s" d="M 720 392 L 720 410 L 620 410 L 620 432" stroke="rgba(124,58,237,.5)" stroke-width="1.2" fill="none" marker-end="url(#caf-arrow)"/>
+              <path class="caf-path" style="--pl:50;animation-delay:2.0s" d="M 720 392 L 720 432" stroke="rgba(124,58,237,.5)" stroke-width="1.2" fill="none" marker-end="url(#caf-arrow)"/>
+              <path class="caf-path" style="--pl:50;animation-delay:2.1s" d="M 720 392 L 720 410 L 820 410 L 820 432" stroke="rgba(124,58,237,.5)" stroke-width="1.2" fill="none" marker-end="url(#caf-arrow)"/>
+
+              <g>
+                <rect x="570" y="432" width="100" height="40" rx="4" fill="rgba(79,124,255,.12)" stroke="rgba(79,124,255,.4)" stroke-width="1"/>
+                <text x="620" y="450" text-anchor="middle" fill="#4f7cff" font-family="Inter, sans-serif" font-weight="600" font-size="10">Copilot Studio</text>
+                <text x="620" y="464" text-anchor="middle" fill="#7c8ca6" font-size="8">Low-code</text>
+              </g>
+              <g class="caf-node-active">
+                <rect x="670" y="432" width="100" height="40" rx="4" fill="rgba(124,58,237,.16)" stroke="#7c3aed" stroke-width="1.5"/>
+                <text x="720" y="450" text-anchor="middle" fill="#a78bfa" font-family="Inter, sans-serif" font-weight="700" font-size="10">Microsoft Foundry</text>
+                <text x="720" y="464" text-anchor="middle" fill="#7c8ca6" font-size="8">Pro-code</text>
+              </g>
+              <g>
+                <rect x="770" y="432" width="100" height="40" rx="4" fill="rgba(79,124,255,.12)" stroke="rgba(79,124,255,.4)" stroke-width="1"/>
+                <text x="820" y="450" text-anchor="middle" fill="#4f7cff" font-family="Inter, sans-serif" font-weight="600" font-size="10">Custom infra</text>
+                <text x="820" y="464" text-anchor="middle" fill="#7c8ca6" font-size="8">Full control</text>
+              </g>
+
+              <!-- Animated flow dots -->
+              <circle class="caf-flow-dot" cx="480" cy="80" r="3" fill="#4f7cff"/>
+              <circle class="caf-flow-dot" cx="240" cy="266" r="3" fill="#4f7cff" style="animation-delay:.5s"/>
+              <circle class="caf-flow-dot" cx="720" cy="266" r="3" fill="#7c3aed" style="animation-delay:.8s"/>
+              <circle class="caf-flow-dot" cx="720" cy="408" r="3" fill="#7c3aed" style="animation-delay:1.2s"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="explain-grid">
+          <div class="explain-card">
+            <h3><span class="dot"></span> How to use this tree</h3>
+            <p>The tree has two parallel tracks. The <strong>Business Plan</strong> side asks whether you even need an agent — many use cases are better served by deterministic code, RAG, or a SaaS Copilot. Only when reasoning and tool orchestration are genuinely required does the Technology Plan side become relevant.</p>
+            <ul>
+              <li><strong>Structured task?</strong> Use code — faster, cheaper, more reliable.</li>
+              <li><strong>Static knowledge retrieval?</strong> Use classic RAG — no agent needed.</li>
+              <li><strong>SaaS agent fits?</strong> Adopt the prebuilt one (M365 Copilot, Dynamics 365, Security Copilot).</li>
+              <li><strong>None of the above?</strong> Build custom on Foundry, Copilot Studio or custom infra.</li>
+            </ul>
+          </div>
+          <div class="explain-card">
+            <h3><span class="dot"></span> Picking your build platform</h3>
+            <ul>
+              <li><strong>Copilot Studio</strong> — low-code. Best for business teams building internal productivity agents.</li>
+              <li><strong>Microsoft Foundry</strong> — pro-code, multi-model, multi-agent orchestration. Best for engineering teams building differentiated customer-facing agents.</li>
+              <li><strong>Custom infrastructure</strong> — AKS + OSS frameworks (LangGraph, Semantic Kernel, your own). Best when Foundry's opinions don't fit — niche compliance, bespoke model-hosting, experimental research.</li>
+            </ul>
+            <p style="margin-top:12px"><strong>Pattern to remember:</strong> start on the lowest-effort path that satisfies the need. Only move to custom infra when you've proven the SaaS and Foundry paths can't deliver.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AGENTIC AI — EXPLAINED ── -->
+      <div id="view-learn-agentic" class="view fadeIn">
+        <div class="breadcrumb">Learn &amp; Explain / <span>Agentic AI</span></div>
+        <div class="learn-hero">
+          <span class="learn-kicker">Concept · Agentic AI</span>
+          <h2>Agentic AI — Perceive, Reason, Plan, Act, Observe</h2>
+          <p>An <strong>agent</strong> is an AI program that doesn't just respond — it decides. It perceives its environment, reasons about the goal, plans a sequence of tool calls, executes them, and observes the result — then loops. The animation below shows that loop running around a central reasoning model.</p>
+        </div>
+
+        <div class="anim-panel">
+          <div class="anim-stage">
+            <div class="agentic-stage">
+              <div class="agentic-brain">LLM<br>+ Memory</div>
+              <div class="loop-node loop-perceive" id="ag-perceive"><span class="ln-icon">👁</span>PERCEIVE</div>
+              <div class="loop-node loop-reason" id="ag-reason"><span class="ln-icon">💭</span>REASON</div>
+              <div class="loop-node loop-plan" id="ag-plan"><span class="ln-icon">📋</span>PLAN</div>
+              <div class="loop-node loop-act" id="ag-act"><span class="ln-icon">🛠</span>ACT</div>
+              <div class="loop-node loop-observe" id="ag-observe"><span class="ln-icon">📊</span>OBSERVE</div>
+              <svg class="agentic-svg" viewBox="0 0 560 360">
+                <defs>
+                  <marker id="ag-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <polygon points="0 0, 8 3, 0 6" fill="rgba(124,58,237,.5)"/>
+                  </marker>
+                </defs>
+                <path d="M 320 40 Q 460 80 460 140" stroke="rgba(124,58,237,.25)" stroke-width="1.2" fill="none" marker-end="url(#ag-arrow)" stroke-dasharray="3,4"/>
+                <path d="M 460 220 Q 460 280 320 320" stroke="rgba(124,58,237,.25)" stroke-width="1.2" fill="none" marker-end="url(#ag-arrow)" stroke-dasharray="3,4"/>
+                <path d="M 240 320 Q 100 280 100 220" stroke="rgba(124,58,237,.25)" stroke-width="1.2" fill="none" marker-end="url(#ag-arrow)" stroke-dasharray="3,4"/>
+                <path d="M 100 140 Q 100 80 240 40" stroke="rgba(124,58,237,.25)" stroke-width="1.2" fill="none" marker-end="url(#ag-arrow)" stroke-dasharray="3,4"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="explain-grid">
+          <div class="explain-card">
+            <h3><span class="dot"></span> The 5 phases of the agent loop</h3>
+            <ul>
+              <li><strong>Perceive</strong> — ingest the user message, environment state, prior memory, and any system events.</li>
+              <li><strong>Reason</strong> — the LLM interprets the goal against what it knows (memory, retrieved context, tool schemas).</li>
+              <li><strong>Plan</strong> — decompose into subtasks; pick which tool to call next and with what arguments.</li>
+              <li><strong>Act</strong> — execute the chosen tool (API call, code execution, DB query, another agent).</li>
+              <li><strong>Observe</strong> — read the tool result; update memory; decide whether the goal is met or another loop is needed.</li>
+            </ul>
+          </div>
+          <div class="explain-card">
+            <h3><span class="dot"></span> Why agents &ne; chatbots</h3>
+            <p>A chatbot answers. An agent <em>pursues</em>. That distinction matters because it changes every part of how you build, secure, and operate the system.</p>
+            <ul>
+              <li><strong>Chatbots</strong> are stateless Q&amp;A engines. No tools, no side-effects, no memory beyond the conversation.</li>
+              <li><strong>Agents</strong> have goals, tools, memory and autonomy to decide what to do next — which means they can take real actions (send email, move money, write files) and cause real damage if misaligned.</li>
+              <li><strong>Consequence</strong> — every agent needs a charter, a bounded tool list, approval gates for destructive actions, and an audit trail. OWASP's ASI Top 10 is the industry's best list of what to guard against.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MCP — EXPLAINED ── -->
+      <div id="view-learn-mcp" class="view fadeIn">
+        <div class="breadcrumb">Learn &amp; Explain / <span>Model Context Protocol (MCP)</span></div>
+        <div class="learn-hero">
+          <span class="learn-kicker">Concept · MCP</span>
+          <h2>MCP — the USB-C of tool integration for LLMs</h2>
+          <p><strong>Model Context Protocol</strong> is an open standard (from Anthropic, now adopted broadly) that lets AI agents discover and call tools through a uniform interface. Instead of hand-wiring each tool into each agent, an MCP server exposes tools once and any MCP-compliant client can use them. The animation shows the three-way handshake between client, server and tool.</p>
+        </div>
+
+        <div class="anim-panel">
+          <div class="anim-stage" style="min-height:340px">
+            <div class="mcp-stage">
+              <div class="mcp-col">
+                <div class="mcp-box">
+                  🧠 Agent (MCP Client)
+                  <span class="mcp-sub">Foundry · Claude · Cursor</span>
+                </div>
+              </div>
+              <div class="mcp-lane">
+                <div class="mcp-arrow">━━━━━▸</div>
+                <div class="mcp-msg out" style="top:24px;--from:-40px;animation-delay:0s">→ <em>tools/list</em></div>
+                <div class="mcp-msg in"  style="top:58px;--from:40px;animation-delay:.8s">← [{"name":"query_db",...}]</div>
+                <div class="mcp-msg out" style="top:110px;--from:-40px;animation-delay:2s">→ <em>tools/call</em> query_db(id=7)</div>
+                <div class="mcp-msg in"  style="top:144px;--from:40px;animation-delay:2.8s">← {rows:[...]}</div>
+                <div class="mcp-msg out" style="top:196px;--from:-40px;animation-delay:4s">→ <em>resources/read</em> file://spec.md</div>
+                <div class="mcp-msg in"  style="top:230px;--from:40px;animation-delay:4.8s">← {contents:"..."}</div>
+              </div>
+              <div class="mcp-col">
+                <div class="mcp-box">
+                  ⬢ MCP Server
+                  <span class="mcp-sub">Exposes tools + resources</span>
+                </div>
+                <div style="flex:1"></div>
+                <div class="mcp-box" style="margin-top:12px">
+                  🛠 Underlying Tools
+                  <span class="mcp-sub">DBs · APIs · files · code</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="explain-grid">
+          <div class="explain-card">
+            <h3><span class="dot"></span> The MCP protocol in one paragraph</h3>
+            <p>The client (an agent framework) asks the server <em>"what tools do you have?"</em> via <code>tools/list</code>. The server returns a schema. The client picks a tool and calls it via <code>tools/call</code> with arguments. The server executes it and returns the result. Same shape works for <em>resources</em> (files, documents) and <em>prompts</em> (reusable templates). Everything is JSON-RPC 2.0 over stdio or HTTP.</p>
+            <ul>
+              <li><strong>Uniform</strong> — every MCP tool looks identical to the agent, regardless of what it's wrapping.</li>
+              <li><strong>Discoverable</strong> — agents can enumerate tools at runtime instead of being hard-coded to specific APIs.</li>
+              <li><strong>Composable</strong> — stack multiple MCP servers; the agent gets the union of their tools.</li>
+            </ul>
+          </div>
+          <div class="explain-card">
+            <h3><span class="dot"></span> Why MCP matters for enterprise security</h3>
+            <p>MCP turns tool integration from a bespoke engineering problem into a governed interface — which means it can be secured at the protocol level instead of per-integration.</p>
+            <ul>
+              <li><strong>Audit</strong> — every tool call is a structured message you can log and replay.</li>
+              <li><strong>Least privilege</strong> — scope tools per agent via the MCP server, not per client.</li>
+              <li><strong>Supply-chain risk</strong> — pulling in a malicious MCP server is like pulling in a malicious npm package. OWASP MCP Top 10 covers this directly.</li>
+              <li><strong>Real-world risk</strong> — the Postmark MCP server incident (Sept 2025) showed how a trusted MCP package can be updated to silently exfiltrate data.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RAG — EXPLAINED ── -->
+      <div id="view-learn-rag" class="view fadeIn">
+        <div class="breadcrumb">Learn &amp; Explain / <span>Retrieval-Augmented Generation (RAG)</span></div>
+        <div class="learn-hero">
+          <span class="learn-kicker">Concept · RAG</span>
+          <h2>RAG — grounding LLM answers in your own data</h2>
+          <p><strong>Retrieval-Augmented Generation</strong> is the pattern that fixes an LLM's two biggest problems in enterprise: it doesn't know your data, and it hallucinates. RAG takes the user's question, retrieves the most relevant chunks from your own documents using vector search, and feeds them to the LLM as context. The animation below shows the 5-step pipeline end to end.</p>
+        </div>
+
+        <div class="anim-panel">
+          <div class="anim-stage" style="flex-direction:column;min-height:340px">
+            <div class="rag-stage" id="rag-stage">
+              <div class="rag-step" data-step="1"><div class="rag-step-icon">❓</div><div class="rag-step-title">Query</div><div class="rag-step-desc">User question</div></div>
+              <div class="rag-connector"><div class="rag-packet"></div></div>
+              <div class="rag-step" data-step="2"><div class="rag-step-icon">🔢</div><div class="rag-step-title">Embed</div><div class="rag-step-desc">Query → vector</div></div>
+              <div class="rag-connector"><div class="rag-packet" style="animation-delay:.8s"></div></div>
+              <div class="rag-step" data-step="3"><div class="rag-step-icon">🔍</div><div class="rag-step-title">Retrieve</div><div class="rag-step-desc">Top-k from vector store</div></div>
+              <div class="rag-connector"><div class="rag-packet" style="animation-delay:1.6s"></div></div>
+              <div class="rag-step" data-step="4"><div class="rag-step-icon">➕</div><div class="rag-step-title">Augment</div><div class="rag-step-desc">Query + context → prompt</div></div>
+              <div class="rag-connector"><div class="rag-packet" style="animation-delay:2.4s"></div></div>
+              <div class="rag-step" data-step="5"><div class="rag-step-icon">✦</div><div class="rag-step-title">Generate</div><div class="rag-step-desc">LLM answers, grounded</div></div>
+            </div>
+            <div class="rag-vector-space" style="width:90%;max-width:860px">
+              <div class="rag-vector-title">Vector Store — your chunked &amp; embedded documents</div>
+              <div style="line-height:0">
+                <span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span>
+                <span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span>
+                <span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span>
+                <span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span><span class="rag-vec-dot"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="explain-grid">
+          <div class="explain-card">
+            <h3><span class="dot"></span> The 5 steps, demystified</h3>
+            <ul>
+              <li><strong>Query</strong> — user asks a question in plain English.</li>
+              <li><strong>Embed</strong> — an embedding model (e.g. text-embedding-3-small) converts the query into a high-dimensional vector that captures its meaning.</li>
+              <li><strong>Retrieve</strong> — the vector is compared against your pre-embedded document chunks in a vector store (AI Search, Qdrant, Pinecone). Closest-k chunks come back.</li>
+              <li><strong>Augment</strong> — those chunks are stuffed into the prompt as context, usually with phrasing like "Use only the following information to answer…"</li>
+              <li><strong>Generate</strong> — the LLM answers the user's question using that retrieved context, with citations back to source chunks.</li>
+            </ul>
+          </div>
+          <div class="explain-card">
+            <h3><span class="dot"></span> Common RAG failure modes &amp; security risks</h3>
+            <p>OWASP RAG-01 through RAG-06 catalogues the specific ways RAG pipelines break or get attacked:</p>
+            <ul>
+              <li><strong>RAG-01 Poisoned data</strong> — attacker plants malicious content in the ingest pipeline so retrieval returns it.</li>
+              <li><strong>RAG-02 Injection via context</strong> — retrieved chunks contain prompt-injection payloads that hijack the LLM.</li>
+              <li><strong>RAG-03 Leakage</strong> — sensitive data in chunks gets echoed to unauthorised users.</li>
+              <li><strong>RAG-04 Access control bypass</strong> — vector store doesn't enforce per-user filters, so one user retrieves another's documents.</li>
+              <li><strong>RAG-05 Low-quality retrieval</strong> — wrong chunks come back, LLM answers confidently with the wrong facts.</li>
+              <li><strong>RAG-06 No observability</strong> — nobody logs which chunks were retrieved for which query, making debugging and forensics impossible.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LLM — EXPLAINED ── -->
+      <div id="view-learn-llm" class="view fadeIn">
+        <div class="breadcrumb">Learn &amp; Explain / <span>Large Language Models (LLM)</span></div>
+        <div class="learn-hero">
+          <span class="learn-kicker">Concept · LLM</span>
+          <h2>LLM — tokens in, tokens out, attention in the middle</h2>
+          <p>At heart, a <strong>Large Language Model</strong> is a next-token predictor. You feed it a sequence of tokens (words, subwords, punctuation), its attention layers weigh which input tokens matter for the current step, and it outputs one token at a time — each appended back into the context to predict the next. The animation shows that flow: input tokens on the left, attention in the middle, output tokens streaming out on the right.</p>
+        </div>
+
+        <div class="anim-panel">
+          <div class="anim-stage">
+            <div class="llm-stage">
+              <div class="llm-col">
+                <div class="llm-col-label">Input tokens</div>
+                <div class="llm-token input">Summarise</div>
+                <div class="llm-token input">this</div>
+                <div class="llm-token input">Q3</div>
+                <div class="llm-token input">report</div>
+                <div class="llm-token input">:</div>
+                <div class="llm-token input">&lt;doc&gt;</div>
+              </div>
+              <div class="llm-brain">
+                <div class="llm-col-label">Attention</div>
+                <svg class="llm-attn-svg" viewBox="0 0 180 240">
+                  <!-- Left column (input) nodes -->
+                  <circle class="llm-attn-node" cx="20" cy="30" r="4"/>
+                  <circle class="llm-attn-node" cx="20" cy="70" r="4"/>
+                  <circle class="llm-attn-node" cx="20" cy="110" r="4"/>
+                  <circle class="llm-attn-node" cx="20" cy="150" r="4"/>
+                  <circle class="llm-attn-node" cx="20" cy="190" r="4"/>
+                  <circle class="llm-attn-node" cx="20" cy="220" r="4"/>
+                  <!-- Middle transformer layer nodes -->
+                  <circle class="llm-attn-node" cx="90" cy="50" r="4"/>
+                  <circle class="llm-attn-node" cx="90" cy="100" r="4"/>
+                  <circle class="llm-attn-node" cx="90" cy="150" r="4"/>
+                  <circle class="llm-attn-node" cx="90" cy="200" r="4"/>
+                  <!-- Right column (output) nodes -->
+                  <circle class="llm-attn-node" cx="160" cy="50" r="4"/>
+                  <circle class="llm-attn-node" cx="160" cy="100" r="4"/>
+                  <circle class="llm-attn-node" cx="160" cy="150" r="4"/>
+                  <circle class="llm-attn-node" cx="160" cy="200" r="4"/>
+                  <!-- Input → middle lines -->
+                  <line class="llm-attn-line" x1="20" y1="30" x2="90" y2="50"/>
+                  <line class="llm-attn-line" x1="20" y1="30" x2="90" y2="100"/>
+                  <line class="llm-attn-line" x1="20" y1="70" x2="90" y2="50"/>
+                  <line class="llm-attn-line" x1="20" y1="70" x2="90" y2="100"/>
+                  <line class="llm-attn-line" x1="20" y1="70" x2="90" y2="150"/>
+                  <line class="llm-attn-line" x1="20" y1="110" x2="90" y2="100"/>
+                  <line class="llm-attn-line" x1="20" y1="110" x2="90" y2="150"/>
+                  <line class="llm-attn-line" x1="20" y1="150" x2="90" y2="100"/>
+                  <line class="llm-attn-line" x1="20" y1="150" x2="90" y2="150"/>
+                  <line class="llm-attn-line" x1="20" y1="150" x2="90" y2="200"/>
+                  <line class="llm-attn-line" x1="20" y1="190" x2="90" y2="150"/>
+                  <line class="llm-attn-line" x1="20" y1="190" x2="90" y2="200"/>
+                  <line class="llm-attn-line" x1="20" y1="220" x2="90" y2="200"/>
+                  <!-- Middle → output lines -->
+                  <line class="llm-attn-line" x1="90" y1="50" x2="160" y2="50"/>
+                  <line class="llm-attn-line" x1="90" y1="50" x2="160" y2="100"/>
+                  <line class="llm-attn-line" x1="90" y1="100" x2="160" y2="50"/>
+                  <line class="llm-attn-line" x1="90" y1="100" x2="160" y2="100"/>
+                  <line class="llm-attn-line" x1="90" y1="100" x2="160" y2="150"/>
+                  <line class="llm-attn-line" x1="90" y1="150" x2="160" y2="100"/>
+                  <line class="llm-attn-line" x1="90" y1="150" x2="160" y2="150"/>
+                  <line class="llm-attn-line" x1="90" y1="150" x2="160" y2="200"/>
+                  <line class="llm-attn-line" x1="90" y1="200" x2="160" y2="150"/>
+                  <line class="llm-attn-line" x1="90" y1="200" x2="160" y2="200"/>
+                </svg>
+              </div>
+              <div class="llm-col">
+                <div class="llm-col-label">Output tokens</div>
+                <div class="llm-token output">The</div>
+                <div class="llm-token output">report</div>
+                <div class="llm-token output">shows</div>
+                <div class="llm-token output">revenue</div>
+                <div class="llm-token output">grew</div>
+                <div class="llm-token output">12%</div>
+                <div class="llm-token output">YoY.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="explain-grid">
+          <div class="explain-card">
+            <h3><span class="dot"></span> The four things every LLM does</h3>
+            <ul>
+              <li><strong>Tokenise</strong> — break the input into subword units (roughly 4 characters each).</li>
+              <li><strong>Embed</strong> — convert each token into a vector; positional encodings add "where in the sequence" info.</li>
+              <li><strong>Attend</strong> — at each transformer layer, every token "looks at" every other token and decides what matters. This is the secret sauce — it's how the model knows that in <em>"The bank of the river"</em>, <em>bank</em> means something different than in <em>"I went to the bank"</em>.</li>
+              <li><strong>Predict</strong> — the final layer outputs a probability distribution over all possible next tokens. Sampling strategies (temperature, top-p) pick one. Repeat until done.</li>
+            </ul>
+          </div>
+          <div class="explain-card">
+            <h3><span class="dot"></span> Common LLM failure modes &amp; security risks</h3>
+            <p>OWASP LLM Top 10 names the big ones. All of these apply to models running in Microsoft Foundry just as they apply to OpenAI's direct API or open-weight models:</p>
+            <ul>
+              <li><strong>LLM01 Prompt injection</strong> — attacker crafts input that hijacks the model's instructions.</li>
+              <li><strong>LLM02 Insecure output handling</strong> — the model's output is trusted as safe HTML / SQL / shell command.</li>
+              <li><strong>LLM03 Training data poisoning</strong> — attacker contributes poisoned training data upstream.</li>
+              <li><strong>LLM06 Sensitive information disclosure</strong> — model regurgitates PII or secrets it was trained on.</li>
+              <li><strong>LLM07 Insecure plugin/tool design</strong> — function-calling tools have weak input validation.</li>
+              <li><strong>LLM09 Overreliance</strong> — humans treat confidently-worded outputs as verified facts.</li>
+              <li><strong>LLM10 Model theft</strong> — attacker extracts or exfiltrates the model weights through repeated API queries.</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -865,8 +1509,8 @@ const CHECKLIST=[
 ];
 
 const AGENT_ANSWERS=[
-  {k:'gap',a:'<strong>10 critical gaps in Azure AI Foundry native controls (from the blueprint slides):</strong><br><br>1. Deep runtime threat detection → Prisma AIRS<br>2. AI model weight scanning → HiddenLayer MLDR<br>3. AI-CSPM posture management → Prisma AIRS<br>4. MCP supply chain scanning → Koi Security<br>5. Continuous production red teaming → Mindgard<br>6. RAG KB poisoning detection → Lakera Guard<br>7. Regulatory evidence automation → Credo AI / Saidot<br>8. Shadow agent discovery → Zenity<br>9. A2A cryptographic verification → Zenity<br>10. Custom output policy engine → Lakera Guard<br><br>All 10 gaps now covered by the 8 third-party tools in v2.'},
-  {k:'lakera',a:'<strong>Lakera Guard</strong> fills gaps 4, 6, and 10:<br><br>• <strong>Gap 6</strong>: Best-in-class indirect injection detection for RAG pipelines — scans retrieved content BEFORE it enters agent context<br>• <strong>Gap 10</strong>: Custom business output policy engine — e.g. "no investment advice without FCA disclaimer" — beyond standard harm categories<br>• <strong>Gap 4 (partial)</strong>: Input validation for MCP parameters<br><br>Free tier available. Real-time API. Integrates natively with Azure AI Foundry.'},
+  {k:'gap',a:'<strong>10 critical gaps in Microsoft Foundry native controls (from the blueprint slides):</strong><br><br>1. Deep runtime threat detection → Prisma AIRS<br>2. AI model weight scanning → HiddenLayer MLDR<br>3. AI-CSPM posture management → Prisma AIRS<br>4. MCP supply chain scanning → Koi Security<br>5. Continuous production red teaming → Mindgard<br>6. RAG KB poisoning detection → Lakera Guard<br>7. Regulatory evidence automation → Credo AI / Saidot<br>8. Shadow agent discovery → Zenity<br>9. A2A cryptographic verification → Zenity<br>10. Custom output policy engine → Lakera Guard<br><br>All 10 gaps now covered by the 8 third-party tools in v2.'},
+  {k:'lakera',a:'<strong>Lakera Guard</strong> fills gaps 4, 6, and 10:<br><br>• <strong>Gap 6</strong>: Best-in-class indirect injection detection for RAG pipelines — scans retrieved content BEFORE it enters agent context<br>• <strong>Gap 10</strong>: Custom business output policy engine — e.g. "no investment advice without FCA disclaimer" — beyond standard harm categories<br>• <strong>Gap 4 (partial)</strong>: Input validation for MCP parameters<br><br>Free tier available. Real-time API. Integrates natively with Microsoft Foundry.'},
   {k:'koi',a:'<strong>Koi Security</strong> fills gap 4 (MCP supply chain scanning):<br><br>Azure AI Gateway routes MCP calls but does NOT scan for malicious server behaviour, scope creep, or typosquatting. Koi Security adds:<br>• MCP supply chain gateway with active scanning<br>• Detection of typosquatted MCP packages (e.g. mcp-postmark-client vs mcp-postmarkapp)<br>• Rug pull detection<br>• Cited by OWASP ASI Top 10 for ASI04 mitigation'},
   {k:'zenity',a:'<strong>Zenity</strong> fills gaps 1, 3, 8, and 9 — official Foundry partner (Ignite 2025):<br><br>• <strong>Gap 8</strong>: Shadow agent discovery — detects LangGraph, CrewAI, custom agents not registered in Foundry<br>• <strong>Gap 9</strong>: A2A cryptographic message signing — what Azure mTLS alone doesn\'t cover<br>• <strong>Gap 1</strong>: Multi-step attack detection beyond Defender for Cloud AI threat protection<br>• <strong>Gap 3</strong>: AI lifecycle security posture<br><br>Gartner AI TRiSM recognised. Encoded payload blocking built in.'},
   {k:'prisma',a:'<strong>Palo Alto Prisma AIRS</strong> fills gaps 1, 2, 3, and 5 — official Foundry partner (Ignite 2025):<br><br>• <strong>Gap 1</strong>: Deep runtime threat detection beyond Defender for Cloud AI threat protection<br>• <strong>Gap 2</strong>: AI model weight scanning for malware/backdoors<br>• <strong>Gap 3</strong>: Continuous AI-CSPM — agent instructions, tool permissions, memory<br>• <strong>Gap 5</strong>: Continuous production red teaming (alongside Mindgard)<br><br>5 pillars: Runtime firewall, posture mgmt, model scanning, red team, agent security.'},
@@ -1009,6 +1653,33 @@ function initApp(){
   renderTools('all');renderToolFilters();renderScenarios();
   renderRedTeam();renderCompliance();renderChecklist();renderAuditLog();
   initChat();initPipeline();
+  initLearnAnimations();
+}
+
+// ═══════════════════════════════════
+// LEARN & EXPLAIN — RUNTIME ANIMATIONS
+// ═══════════════════════════════════
+function initLearnAnimations(){
+  // Agentic loop — cycle active class through the 5 nodes every 800 ms
+  const agNodes=['ag-perceive','ag-reason','ag-plan','ag-act','ag-observe'];
+  let agIdx=0;
+  setInterval(()=>{
+    agNodes.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active')});
+    const cur=document.getElementById(agNodes[agIdx]);
+    if(cur)cur.classList.add('active');
+    agIdx=(agIdx+1)%agNodes.length;
+  },900);
+
+  // RAG pipeline — cycle active class through the 5 steps
+  const ragStage=document.getElementById('rag-stage');
+  let ragIdx=0;
+  setInterval(()=>{
+    if(!ragStage)return;
+    ragStage.querySelectorAll('.rag-step').forEach(s=>s.classList.remove('active'));
+    const steps=ragStage.querySelectorAll('.rag-step');
+    if(steps[ragIdx])steps[ragIdx].classList.add('active');
+    ragIdx=(ragIdx+1)%steps.length;
+  },800);
 }
 
 // ═══════════════════════════════════
@@ -1313,7 +1984,7 @@ function refreshAudit(){const el=document.getElementById('audit-log');if(el){el.
 function initChat(){
   const msgs=document.getElementById('chat-messages');
   if(!msgs)return;
-  msgs.innerHTML=`<div class="chat-msg fadeIn"><div class="chat-avatar agent">SB</div><div><div class="chat-bubble agent">Hello. I am <strong>SecureBot v2</strong> — updated with all tools and scenarios from the Azure AI Foundry Security Blueprint slides.<br><br>This version includes all <strong>10 critical gap analyses</strong> and all <strong>8 third-party tools</strong>: Palo Alto Prisma AIRS, Zenity, Lakera Guard, Mindgard, Koi Security, HiddenLayer, Credo AI/Saidot, and Garak.<br><br>All inputs are screened by Prompt Shields <em>and</em> Lakera Guard. Ask me anything about the gaps, third-party tools, or security controls.</div><div class="chat-meta">SecureBot v2 · Entra: agent-sb-002 · 3 shields active · 14:35:12</div></div></div>`;
+  msgs.innerHTML=`<div class="chat-msg fadeIn"><div class="chat-avatar agent">SB</div><div><div class="chat-bubble agent">Hello. I am <strong>SecureBot v2</strong> — updated with all tools and scenarios from the Microsoft Foundry Security Blueprint slides.<br><br>This version includes all <strong>10 critical gap analyses</strong> and all <strong>8 third-party tools</strong>: Palo Alto Prisma AIRS, Zenity, Lakera Guard, Mindgard, Koi Security, HiddenLayer, Credo AI/Saidot, and Garak.<br><br>All inputs are screened by Prompt Shields <em>and</em> Lakera Guard. Ask me anything about the gaps, third-party tools, or security controls.</div><div class="chat-meta">SecureBot v2 · Entra: agent-sb-002 · 3 shields active · 14:35:12</div></div></div>`;
   const qp=document.getElementById('quick-prompts');
   if(qp)qp.innerHTML=QUICK_PROMPTS.map(p=>`<button class="btn btn-outline btn-sm" style="text-align:left;white-space:normal;height:auto;padding:7px 10px;font-size:10px;line-height:1.4" onclick="sendQuickPrompt('${p.replace(/'/g,"\\'")}')")>→ ${p}</button>`).join('');
 }

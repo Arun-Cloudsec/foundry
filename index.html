@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure AI Foundry — Security Command Centre v2</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050810;--bg2:#0a0f1e;--bg3:#0f1628;--surface:#111827;--surface2:#1a2236;
+  --border:rgba(99,130,255,0.12);--border2:rgba(99,130,255,0.22);
+  --accent:#4f7cff;--accent2:#7c3aed;--accent3:#06d6a0;
+  --danger:#ff4757;--warn:#ffa502;--info:#00b4d8;
+  --text:#e8edf8;--text2:#8899bb;--text3:#4a5980;
+  --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+  --glow:0 0 30px rgba(79,124,255,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--mono)}
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px)}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.login-bg{position:absolute;inset:0;overflow:hidden}
+.login-bg::before{content:'';position:absolute;inset:-50%;background:radial-gradient(ellipse at 30% 40%,rgba(79,124,255,0.09) 0%,transparent 50%),radial-gradient(ellipse at 70% 60%,rgba(124,58,237,0.07) 0%,transparent 50%);animation:bgpulse 8s ease-in-out infinite alternate}
+@keyframes bgpulse{from{opacity:.5;transform:scale(1)}to{opacity:1;transform:scale(1.05)}}
+.grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(79,124,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,0.04) 1px,transparent 1px);background-size:40px 40px}
+.login-card{position:relative;z-index:2;width:440px;padding:48px 40px;background:var(--surface);border:1px solid var(--border2);border-radius:4px;box-shadow:var(--glow),0 40px 80px rgba(0,0,0,0.5)}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.login-logo .icon{width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px}
+.login-logo .brand{font-family:var(--sans);font-weight:700;font-size:15px;color:var(--text);letter-spacing:.02em}
+.login-logo .sub{font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.08em}
+.login-title{font-family:var(--sans);font-size:24px;font-weight:700;margin-bottom:6px}
+.login-sub{font-size:12px;color:var(--text2);margin-bottom:28px;letter-spacing:.03em}
+.field-group{margin-bottom:14px}
+.field-label{font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px;display:block}
+.field-input{width:100%;padding:11px 16px;background:var(--bg2);border:1px solid var(--border2);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s}
+.field-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,124,255,.1)}
+.role-select{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:22px}
+.role-btn{padding:9px 10px;border:1px solid var(--border2);border-radius:3px;background:var(--bg2);color:var(--text2);font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .2s;text-align:center}
+.role-btn.selected{border-color:var(--accent);color:var(--accent);background:rgba(79,124,255,.08)}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:3px;color:#fff;font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:.04em;cursor:pointer;transition:opacity .2s}
+.login-btn:hover{opacity:.9}
+.login-hint{margin-top:18px;font-size:11px;color:var(--text3);text-align:center;line-height:1.6}
+.login-hint span{color:var(--accent);cursor:pointer}
+.v2-badge{display:inline-block;font-size:10px;padding:2px 8px;background:rgba(255,71,87,.12);color:var(--danger);border:1px solid rgba(255,71,87,.25);border-radius:2px;margin-left:6px;vertical-align:middle}
+
+/* APP */
+#app{display:none;height:100vh;overflow:hidden}
+#app.visible{display:flex;flex-direction:column}
+
+/* TOPBAR */
+.topbar{height:52px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0}
+.topbar-logo{font-family:var(--sans);font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.topbar-logo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent3);box-shadow:0 0 8px var(--accent3);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.topbar-title{font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:.05em;flex:1;padding-left:16px;border-left:1px solid var(--border)}
+.topbar-user{display:flex;align-items:center;gap:10px;font-size:12px}
+.topbar-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.topbar-role{font-size:10px;color:var(--accent);background:rgba(79,124,255,.1);padding:2px 8px;border-radius:2px;border:1px solid rgba(79,124,255,.2);letter-spacing:.05em}
+.logout-btn{font-size:11px;color:var(--text3);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:2px;transition:all .2s}
+.logout-btn:hover{color:var(--text);border-color:var(--border2)}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:224px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;padding:14px 0}
+.sidebar::-webkit-scrollbar{width:2px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2)}
+.nav-section{padding:0 10px;margin-bottom:18px}
+.nav-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:5px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:3px;cursor:pointer;transition:all .15s;font-size:11px;color:var(--text2);letter-spacing:.02em;border:1px solid transparent}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:rgba(79,124,255,.1);color:var(--accent);border-color:rgba(79,124,255,.2)}
+.nav-item .nav-icon{width:15px;text-align:center;font-size:12px;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:9px;padding:1px 5px;border-radius:2px;background:var(--surface2);color:var(--text3)}
+.nav-badge.red{background:rgba(255,71,87,.15);color:var(--danger)}
+.nav-badge.green{background:rgba(6,214,160,.12);color:var(--accent3)}
+.nav-badge.warn{background:rgba(255,165,2,.12);color:var(--warn)}
+.nav-badge.new{background:rgba(0,180,216,.12);color:var(--info)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:22px;background:var(--bg)}
+.main::-webkit-scrollbar{width:4px}
+.main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+.page-header{margin-bottom:22px}
+.page-header h1{font-family:var(--sans);font-size:21px;font-weight:700;color:var(--text)}
+.page-header p{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.6}
+.breadcrumb{font-size:10px;color:var(--text3);letter-spacing:.05em;margin-bottom:7px}
+.breadcrumb span{color:var(--text2)}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:18px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--text)}
+.card-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.stat-card.green::before{background:linear-gradient(90deg,var(--accent3),#00b4d8)}
+.stat-card.red::before{background:linear-gradient(90deg,var(--danger),#ff6b81)}
+.stat-card.warn::before{background:linear-gradient(90deg,var(--warn),#ffd32a)}
+.stat-card.info::before{background:linear-gradient(90deg,var(--info),#48cae4)}
+.stat-num{font-family:var(--sans);font-size:26px;font-weight:700;color:var(--text);line-height:1}
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:5px;letter-spacing:.03em}
+.stat-delta{font-size:10px;margin-top:3px}
+.stat-delta.up{color:var(--accent3)}.stat-delta.dn{color:var(--danger)}
+
+/* GRIDS */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+
+/* TAGS */
+.tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;letter-spacing:.05em;font-weight:500}
+.tag-free{background:rgba(6,214,160,.12);color:var(--accent3);border:1px solid rgba(6,214,160,.2)}
+.tag-paid{background:rgba(255,165,2,.1);color:var(--warn);border:1px solid rgba(255,165,2,.2)}
+.tag-partner{background:rgba(0,180,216,.1);color:var(--info);border:1px solid rgba(0,180,216,.2)}
+.tag-oss{background:rgba(124,58,237,.1);color:#a78bfa;border:1px solid rgba(124,58,237,.2)}
+.tag-layer{background:rgba(79,124,255,.1);color:var(--accent);border:1px solid rgba(79,124,255,.2)}
+.tag-high{background:rgba(255,71,87,.12);color:var(--danger);border:1px solid rgba(255,71,87,.2)}
+.tag-med{background:rgba(255,165,2,.1);color:var(--warn);border:1px solid rgba(255,165,2,.2)}
+.tag-low{background:rgba(6,214,160,.12);color:var(--accent3);border:1px solid rgba(6,214,160,.2)}
+.tag-pass{background:rgba(6,214,160,.12);color:var(--accent3);border:1px solid rgba(6,214,160,.2)}
+.tag-gap{background:rgba(255,71,87,.12);color:var(--danger);border:1px solid rgba(255,71,87,.2)}
+.tag-new{background:rgba(0,180,216,.1);color:var(--info);border:1px solid rgba(0,180,216,.2)}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:11px}
+.data-table th{text-align:left;padding:7px 11px;font-size:9px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);font-weight:500}
+.data-table td{padding:9px 11px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.5}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--surface2);color:var(--text)}
+
+/* PROGRESS */
+.progress-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin:5px 0}
+.progress-fill{height:100%;border-radius:2px;transition:width 1s ease}
+.progress-fill.blue{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.progress-fill.green{background:linear-gradient(90deg,var(--accent3),#00b4d8)}
+.progress-fill.warn{background:var(--warn)}.progress-fill.red{background:var(--danger)}
+.progress-fill.info{background:var(--info)}
+
+/* BUTTONS */
+.btn{font-family:var(--mono);font-size:11px;padding:7px 14px;border-radius:3px;cursor:pointer;border:none;transition:all .2s;letter-spacing:.03em}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{opacity:.85}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.3);color:var(--danger)}.btn-danger:hover{background:rgba(255,71,87,.25)}
+.btn-green{background:rgba(6,214,160,.15);border:1px solid rgba(6,214,160,.3);color:var(--accent3)}.btn-green:hover{background:rgba(6,214,160,.25)}
+.btn-warn{background:rgba(255,165,2,.12);border:1px solid rgba(255,165,2,.25);color:var(--warn)}.btn-warn:hover{background:rgba(255,165,2,.22)}
+.btn-sm{padding:5px 10px;font-size:10px}
+
+/* CONSOLE */
+.console-wrap{background:var(--bg);border:1px solid var(--border);border-radius:3px}
+.console-header{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--border)}
+.console-dot{width:8px;height:8px;border-radius:50%}
+.console-out{padding:14px 16px;font-size:11px;line-height:2;min-height:180px;max-height:300px;overflow-y:auto;font-family:var(--mono)}
+.console-out::-webkit-scrollbar{width:2px}
+.console-out::-webkit-scrollbar-thumb{background:var(--border2)}
+.log-info{color:var(--accent)}.log-ok{color:var(--accent3)}.log-warn{color:var(--warn)}
+.log-err{color:var(--danger)}.log-dim{color:var(--text3)}.log-cmd{color:#c792ea}
+.log-partner{color:var(--info)}
+
+/* SCENARIOS */
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.sc-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:12px;cursor:pointer;transition:all .15s}
+.sc-card:hover{border-color:var(--border2);background:var(--surface2)}
+.sc-card.selected{border-color:var(--accent);background:rgba(79,124,255,.06)}
+.sc-card.passed{border-color:rgba(6,214,160,.3)}
+.sc-title{font-size:11px;font-weight:500;color:var(--text);margin-bottom:3px}
+.sc-desc{font-size:10px;color:var(--text3);line-height:1.5;margin-bottom:6px}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 155px)}
+.chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
+.chat-messages::-webkit-scrollbar{width:2px}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border2)}
+.chat-msg{display:flex;gap:9px;align-items:flex-start}
+.chat-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.chat-avatar.agent{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.chat-avatar.user{background:var(--surface2);border:1px solid var(--border2);color:var(--text2)}
+.chat-bubble{max-width:74%;padding:11px 15px;border-radius:4px;font-size:12px;line-height:1.7}
+.chat-bubble.agent{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+.chat-bubble.user{background:rgba(79,124,255,.12);border:1px solid rgba(79,124,255,.2);color:var(--text)}
+.chat-meta{font-size:10px;color:var(--text3);margin-top:3px}
+.chat-input-row{padding:14px;border-top:1px solid var(--border);display:flex;gap:9px;align-items:center}
+.chat-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:9px 13px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none}
+.chat-input:focus{border-color:var(--accent)}
+.security-indicator{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--accent3);padding:5px 10px;background:rgba(6,214,160,.05);border:1px solid rgba(6,214,160,.15);border-radius:2px}
+.sec-dot{width:6px;height:6px;border-radius:50%;background:var(--accent3);animation:blink 1.5s ease-in-out infinite}
+
+/* FILTER CHIPS */
+.filter-row{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.chip{font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:2px;cursor:pointer;color:var(--text2);transition:all .15s;background:var(--surface)}
+.chip.active{border-color:var(--accent);color:var(--accent);background:rgba(79,124,255,.08)}
+.chip.active-warn{border-color:var(--warn);color:var(--warn);background:rgba(255,165,2,.08)}
+
+/* AUDIT */
+.audit-row{display:flex;gap:12px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px}
+.audit-time{color:var(--text3);width:76px;flex-shrink:0;font-family:var(--mono)}
+.audit-type{width:80px;flex-shrink:0}
+.audit-msg{color:var(--text2);flex:1;line-height:1.5}
+.audit-status{width:60px;text-align:right}
+
+/* PARTNER CARDS */
+.partner-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.partner-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px;position:relative;overflow:hidden}
+.partner-card.official{border-color:rgba(0,180,216,.3)}
+.partner-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.partner-card.p1::before{background:linear-gradient(90deg,#e85d04,#f48c06)}
+.partner-card.p2::before{background:linear-gradient(90deg,#3a86ff,#8338ec)}
+.partner-card.p3::before{background:linear-gradient(90deg,#06d6a0,#1b9aaa)}
+.partner-card.p4::before{background:linear-gradient(90deg,#ef476f,#ffd166)}
+.partner-card.p5::before{background:linear-gradient(90deg,#7b2d8b,#c77dff)}
+.partner-card.p6::before{background:linear-gradient(90deg,#e63946,#457b9d)}
+.partner-card.p7::before{background:linear-gradient(90deg,#2d6a4f,#52b788)}
+.partner-card.p8::before{background:linear-gradient(90deg,#6d6875,#b5838d)}
+.partner-name{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.partner-sub{font-size:10px;color:var(--text3);margin-bottom:10px}
+.partner-gaps{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.gap-pill{font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(255,71,87,.12);color:var(--danger);border:1px solid rgba(255,71,87,.2)}
+
+/* GAP CARDS */
+.gap-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gap-card{background:var(--surface);border:1px solid rgba(255,71,87,.2);border-radius:4px;padding:14px;position:relative}
+.gap-num{font-family:var(--sans);font-size:32px;font-weight:800;color:rgba(255,71,87,.1);position:absolute;top:8px;right:12px;line-height:1}
+.gap-title{font-size:12px;font-weight:500;color:var(--danger);margin-bottom:5px}
+.gap-desc{font-size:11px;color:var(--text2);line-height:1.5}
+.gap-tool{font-size:10px;color:var(--info);margin-top:6px}
+
+/* CHECK ITEMS */
+.check-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:11px}
+.check-icon{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+.check-icon.ok{background:rgba(6,214,160,.15);color:var(--accent3)}
+.check-icon.warn{background:rgba(255,165,2,.12);color:var(--warn)}
+.check-icon.fail{background:rgba(255,71,87,.12);color:var(--danger)}
+.check-text{flex:1;color:var(--text2)}
+.check-ref{font-size:9px;color:var(--text3)}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fadeIn{animation:fadeIn .3s ease forwards}
+@keyframes typing{0%,100%{opacity:1}50%{opacity:0}}
+.typing span{animation:typing 1s ease-in-out infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ════ LOGIN ════ -->
+<div id="login-screen">
+  <div class="login-bg"><div class="grid-overlay"></div></div>
+  <div class="login-card fadeIn">
+    <div class="login-logo">
+      <div class="icon">🛡</div>
+      <div>
+        <div class="brand">Azure AI Foundry <span class="v2-badge">v2</span></div>
+        <div class="sub">SECURITY COMMAND CENTRE · CONFIDENTIAL</div>
+      </div>
+    </div>
+    <div class="login-title">Authenticate access</div>
+    <div class="login-sub">Now includes 10 critical gap analyses, 8 third-party tools & 18 test scenarios</div>
+    <div class="field-group">
+      <label class="field-label">Email address</label>
+      <input class="field-input" id="login-email" type="email" value="admin@contoso.com">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Password</label>
+      <input class="field-input" id="login-pass" type="password" value="••••••••">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Role</label>
+      <div class="role-select">
+        <div class="role-btn selected" onclick="selectRole('Admin',this)">Security Admin</div>
+        <div class="role-btn" onclick="selectRole('Engineer',this)">AI Engineer</div>
+        <div class="role-btn" onclick="selectRole('Auditor',this)">Compliance Auditor</div>
+        <div class="role-btn" onclick="selectRole('Viewer',this)">Read-only</div>
+      </div>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign in with Entra ID →</button>
+    <div class="login-hint">v2 — includes all tools & gaps from the Azure AI Foundry Security Blueprint slides<br><span onclick="alert('admin@contoso.com (any password). Pick any role.')">View demo credentials</span></div>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo"><span>🛡</span> AI Foundry SCC <span class="v2-badge">v2</span><div class="dot"></div></div>
+    <div class="topbar-title" id="topbar-context">AZURE AI FOUNDRY — SECURITY COMMAND CENTRE v2</div>
+    <div class="topbar-user">
+      <div id="topbar-avatar" class="topbar-avatar">AD</div>
+      <div><div style="font-size:12px;color:var(--text)" id="topbar-name">Admin Demo</div><div class="topbar-role" id="topbar-role">ADMIN</div></div>
+      <div class="logout-btn" onclick="doLogout()">Logout</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <div class="nav-item active" onclick="showView('dashboard',this)"><span class="nav-icon">⬡</span> Dashboard</div>
+        <div class="nav-item" onclick="showView('agent',this)"><span class="nav-icon">◈</span> Agent Console</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Security Domains</div>
+        <div class="nav-item" onclick="showView('agentic',this)"><span class="nav-icon">⚡</span> Agentic (ASI Top 10)<span class="nav-badge red">10</span></div>
+        <div class="nav-item" onclick="showView('mcp',this)"><span class="nav-icon">⬢</span> MCP Top 10<span class="nav-badge">10</span></div>
+        <div class="nav-item" onclick="showView('rag',this)"><span class="nav-icon">◉</span> RAG Security<span class="nav-badge">6</span></div>
+        <div class="nav-item" onclick="showView('llm',this)"><span class="nav-icon">◑</span> LLM Top 10<span class="nav-badge">10</span></div>
+        <div class="nav-item" onclick="showView('network',this)"><span class="nav-icon">⬡</span> Network & Identity</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Gap Analysis <span class="tag-new" style="display:inline;font-size:8px;padding:1px 5px;border-radius:2px;background:rgba(0,180,216,.1);color:var(--info)">NEW</span></div>
+        <div class="nav-item" onclick="showView('gaps',this)"><span class="nav-icon">⚠</span> 10 Critical Gaps<span class="nav-badge red">10</span></div>
+        <div class="nav-item" onclick="showView('thirdparty',this)"><span class="nav-icon">◎</span> Third-Party Tools<span class="nav-badge warn">8</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Tools & Testing</div>
+        <div class="nav-item" onclick="showView('tools',this)"><span class="nav-icon">⊞</span> All Tools<span class="nav-badge green">36</span></div>
+        <div class="nav-item" onclick="showView('testing',this)"><span class="nav-icon">▷</span> Test Scenarios<span class="nav-badge warn">18</span></div>
+        <div class="nav-item" onclick="showView('redteam',this)"><span class="nav-icon">◎</span> Red Team / PyRIT</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Governance</div>
+        <div class="nav-item" onclick="showView('native',this)"><span class="nav-icon">☁</span> Native Controls</div>
+        <div class="nav-item" onclick="showView('compliance',this)"><span class="nav-icon">✓</span> Compliance Map</div>
+        <div class="nav-item" onclick="showView('checklist',this)"><span class="nav-icon">≡</span> Dev Checklist</div>
+        <div class="nav-item" onclick="showView('audit',this)"><span class="nav-icon">▤</span> Audit Log<span class="nav-badge green">Live</span></div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+      <!-- ── DASHBOARD ── -->
+      <div id="view-dashboard" class="view active fadeIn">
+        <div class="breadcrumb">SCC v2 / <span>Dashboard</span></div>
+        <div class="page-header">
+          <h1>Security Command Centre <span class="v2-badge" style="font-size:12px">v2</span></h1>
+          <p>Azure AI Foundry Security Blueprint — 7 layers · 36 tools · 10 gap analyses · 8 third-party integrations · 18 test scenarios</p>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card green"><div class="stat-num">7/7</div><div class="stat-lbl">Security layers</div><div class="stat-delta up">▲ All mandatory</div></div>
+          <div class="stat-card"><div class="stat-num">36</div><div class="stat-lbl">Tools deployed</div><div class="stat-delta up">▲ +8 from slides</div></div>
+          <div class="stat-card warn"><div class="stat-num">10</div><div class="stat-lbl">Native gaps identified</div><div class="stat-delta" style="color:var(--info)">↗ 8 tools plugging gaps</div></div>
+          <div class="stat-card red"><div class="stat-num">0</div><div class="stat-lbl">Active incidents</div><div class="stat-delta up">▼ All clear</div></div>
+          <div class="stat-card info"><div class="stat-num">18</div><div class="stat-lbl">Test scenarios</div><div class="stat-delta up">▲ All domains</div></div>
+        </div>
+        <div class="grid2" style="margin-bottom:14px">
+          <div class="card"><div class="card-header"><div><div class="card-title">7 Mandatory Security Layers</div><div class="card-sub">No layer is optional before production</div></div><span class="tag tag-pass">ALL ACTIVE</span></div><div id="layer-bars-dash"></div></div>
+          <div class="card"><div class="card-header"><div><div class="card-title">OWASP Framework Coverage</div><div class="card-sub">ASI · MCP · LLM Top 10 · RAG</div></div></div><div id="owasp-dash"></div></div>
+        </div>
+        <div class="grid3">
+          <div class="card"><div class="card-title" style="margin-bottom:11px">Foundry native controls</div><div id="native-mini"></div></div>
+          <div class="card"><div class="card-title" style="margin-bottom:11px">Third-party gap coverage</div><div id="gap-mini"></div></div>
+          <div class="card"><div class="card-title" style="margin-bottom:11px">Compliance frameworks</div><div id="comp-mini"></div></div>
+        </div>
+      </div>
+
+      <!-- ── AGENT CONSOLE ── -->
+      <div id="view-agent" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / <span>Agent Console</span></div>
+        <div class="page-header"><h1>SecureBot v2 — Agent Console</h1><p>All 7 layers active + third-party integrations. Prompt Shields, Lakera Guard, and Koi Security all screening inputs.</p></div>
+        <div class="grid2">
+          <div class="card" style="display:flex;flex-direction:column;height:560px">
+            <div class="card-header"><div><div class="card-title">Secure agent chat</div><div class="card-sub">Entra ID: agent-securebot-002 · v2 with third-party layers</div></div><div class="security-indicator"><div class="sec-dot"></div> 3 shields active</div></div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-row">
+              <input class="chat-input" id="chat-input" placeholder="Ask about gaps, third-party tools, or security controls..." onkeydown="if(event.key==='Enter')sendChat()">
+              <button class="btn btn-primary btn-sm" onclick="sendChat()">Send →</button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:11px">
+            <div class="card"><div class="card-title" style="margin-bottom:10px">Security pipeline (v2)</div><div id="pipeline-steps"></div></div>
+            <div class="card"><div class="card-title" style="margin-bottom:9px">Quick questions</div><div id="quick-prompts" style="display:flex;flex-direction:column;gap:5px"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AGENTIC ── -->
+      <div id="view-agentic" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / Security Domains / <span>Agentic Security</span></div>
+        <div class="page-header"><h1>OWASP ASI Top 10 — Agentic Security (2025)</h1><p>Released December 2025. 100+ industry experts. Risks specific to autonomous AI agents — not covered by LLM Top 10.</p></div>
+        <div class="card"><table class="data-table"><thead><tr><th>ID</th><th>Risk</th><th>Description</th><th>Mitigation</th><th>Azure Tool</th><th>Gap?</th><th>Status</th></tr></thead><tbody id="asi-table"></tbody></table></div>
+      </div>
+
+      <!-- ── MCP ── -->
+      <div id="view-mcp" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / Security Domains / <span>MCP Security</span></div>
+        <div class="page-header"><h1>OWASP MCP Top 10 — Protocol Security</h1><p>Every agent using MCP must comply. All servers routed through AI Gateway. Koi Security added for supply chain scanning.</p></div>
+        <div class="card"><table class="data-table"><thead><tr><th>ID</th><th>Risk</th><th>Control</th><th>Tool</th><th>Test</th><th>Status</th></tr></thead><tbody id="mcp-table"></tbody></table></div>
+      </div>
+
+      <!-- ── RAG ── -->
+      <div id="view-rag" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / Security Domains / <span>RAG Security</span></div>
+        <div class="page-header"><h1>RAG Security — 6 Requirements</h1><p>Mandatory for all RAG-powered agents. Lakera Guard added for indirect injection detection in retrieval pipelines.</p></div>
+        <div class="grid2" style="margin-bottom:14px">
+          <div class="card"><div class="card-header"><div class="card-title">RAG pipeline (with Lakera)</div></div><div id="rag-pipeline"></div></div>
+          <div class="card"><div class="card-header"><div class="card-title">RAG-01 to RAG-06 controls</div></div><table class="data-table"><thead><tr><th>ID</th><th>Control</th><th>Tool</th><th>Status</th></tr></thead><tbody id="rag-table"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ── LLM ── -->
+      <div id="view-llm" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / Security Domains / <span>LLM Security</span></div>
+        <div class="page-header"><h1>OWASP LLM Top 10 — Foundation Layer</h1><p>Foundation beneath every agent. Garak (OSS) added for deep pre-deployment vulnerability scanning.</p></div>
+        <div class="card"><table class="data-table"><thead><tr><th>ID</th><th>Risk</th><th>Mitigation</th><th>Azure Control</th><th>3rd Party</th><th>Status</th></tr></thead><tbody id="llm-table"></tbody></table></div>
+      </div>
+
+      <!-- ── NETWORK ── -->
+      <div id="view-network" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / Security Domains / <span>Network & Identity</span></div>
+        <div class="page-header"><h1>Network Isolation & Identity Controls</h1><p>Zero Trust architecture. Private VNet, Entra Agent ID, Azure Firewall. Zenity added for A2A cryptographic verification.</p></div>
+        <div class="grid2"><div class="card"><div class="card-title" style="margin-bottom:12px">Identity controls</div><div id="identity-checks"></div></div><div class="card"><div class="card-title" style="margin-bottom:12px">Network controls</div><div id="network-checks"></div></div></div>
+      </div>
+
+      <!-- ── GAPS ── -->
+      <div id="view-gaps" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / Gap Analysis / <span>10 Critical Gaps</span></div>
+        <div class="page-header"><h1>10 Critical Gaps in Azure AI Foundry Native Controls</h1><p>From the official blueprint slides. These are what Foundry alone cannot cover — and the third-party tools that fill each gap.</p></div>
+        <div class="gap-grid" id="gap-cards"></div>
+      </div>
+
+      <!-- ── THIRD PARTY ── -->
+      <div id="view-thirdparty" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / Gap Analysis / <span>Third-Party Tools</span></div>
+        <div class="page-header"><h1>8 Third-Party Tools — From the Blueprint Slides</h1><p>Official Foundry partners and best-in-class tools that plug the 10 critical gaps. Two are official Microsoft Ignite 2025 Foundry partners.</p></div>
+        <div class="partner-grid" id="partner-cards"></div>
+      </div>
+
+      <!-- ── NATIVE CONTROLS ── -->
+      <div id="view-native" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / Governance / <span>Native Controls</span></div>
+        <div class="page-header"><h1>Azure AI Foundry Native Controls</h1><p>What Foundry provides out of the box — before any third-party integration.</p></div>
+        <div class="card"><table class="data-table"><thead><tr><th>Control</th><th>What it does</th><th>Risks mitigated</th><th>Status</th></tr></thead><tbody id="native-table"></tbody></table></div>
+      </div>
+
+      <!-- ── ALL TOOLS ── -->
+      <div id="view-tools" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / <span>All Security Tools (36)</span></div>
+        <div class="page-header"><h1>All Security Tools — 36 deployed</h1><p>28 original + 8 new from blueprint slides. Filter by tier, layer, or source.</p></div>
+        <div class="filter-row" id="tool-filters"></div>
+        <div class="card"><table class="data-table"><thead><tr><th>Tool</th><th>Source</th><th>Tier</th><th>Layer</th><th>Use case</th><th>Gaps plugged</th><th>Test method</th></tr></thead><tbody id="tools-body"></tbody></table></div>
+      </div>
+
+      <!-- ── TESTING ── -->
+      <div id="view-testing" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / <span>Test Scenarios (18)</span></div>
+        <div class="page-header"><h1>18 Security Test Scenarios</h1><p>12 original + 6 new scenarios covering the 10 critical gaps and third-party tool integrations.</p></div>
+        <div class="scenario-grid" id="scenario-cards"></div>
+        <div class="console-wrap">
+          <div class="console-header">
+            <div class="console-dot" style="background:#ff5f57"></div><div class="console-dot" style="background:#febc2e"></div><div class="console-dot" style="background:#28c840"></div>
+            <span style="font-size:10px;color:var(--text3);margin-left:8px" id="console-title">— no scenario selected —</span>
+            <div style="margin-left:auto;display:flex;gap:7px">
+              <button class="btn btn-outline btn-sm" onclick="clearConsole()">Clear</button>
+              <button class="btn btn-green btn-sm" onclick="runAllTests()">Run all 18 →</button>
+              <button class="btn btn-primary btn-sm" onclick="runSelectedTest()">Run selected →</button>
+            </div>
+          </div>
+          <div class="console-out" id="console-out"><span class="log-dim">// Select a scenario or click "Run all 18"</span></div>
+        </div>
+      </div>
+
+      <!-- ── RED TEAM ── -->
+      <div id="view-redteam" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / <span>Red Team / PyRIT</span></div>
+        <div class="page-header"><h1>Red Team — PyRIT, Garak & Mindgard</h1><p>Pre-deployment PyRIT + Garak (OSS) + Mindgard continuous production testing. MITRE ATLAS techniques covered.</p></div>
+        <div class="grid2" style="margin-bottom:14px">
+          <div class="card"><div class="card-header"><div class="card-title">Test suites (PyRIT + Garak)</div></div><div id="pyrit-suites"></div></div>
+          <div class="card"><div class="card-header"><div class="card-title">MITRE ATLAS threat mapping</div></div><div id="atlas-table"></div></div>
+        </div>
+        <div class="console-wrap">
+          <div class="console-header">
+            <div class="console-dot" style="background:#ff5f57"></div><div class="console-dot" style="background:#febc2e"></div><div class="console-dot" style="background:#28c840"></div>
+            <span style="font-size:10px;color:var(--text3);margin-left:8px">PyRIT + Garak evaluation console</span>
+            <div style="margin-left:auto;display:flex;gap:7px">
+              <button class="btn btn-outline btn-sm" onclick="runGarak()">Run Garak probes →</button>
+              <button class="btn btn-primary btn-sm" onclick="runPyRIT()">Run PyRIT suite →</button>
+            </div>
+          </div>
+          <div class="console-out" id="pyrit-console"><span class="log-dim">// Click Run PyRIT suite or Run Garak probes to begin</span></div>
+        </div>
+      </div>
+
+      <!-- ── COMPLIANCE ── -->
+      <div id="view-compliance" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / Governance / <span>Compliance Map</span></div>
+        <div class="page-header"><h1>Compliance Framework Mapping</h1><p>NIST AI RMF · EU AI Act (Credo AI/Saidot) · ISO 27001 · SOC 2 · MITRE ATLAS · Zero Trust</p></div>
+        <div class="grid2" style="margin-bottom:14px">
+          <div class="card"><div class="card-title" style="margin-bottom:12px">Framework coverage</div><div id="compliance-bars"></div></div>
+          <div class="card"><div class="card-title" style="margin-bottom:12px">Key mappings</div><div id="compliance-detail"></div></div>
+        </div>
+      </div>
+
+      <!-- ── DEV CHECKLIST ── -->
+      <div id="view-checklist" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / Governance / <span>Developer Checklist</span></div>
+        <div class="page-header"><h1>Developer Compliance Checklist</h1><p>Complete all items before any agent reaches production. Security review sign-off required at each phase gate.</p></div>
+        <div id="checklist-render"></div>
+      </div>
+
+      <!-- ── AUDIT LOG ── -->
+      <div id="view-audit" class="view fadeIn">
+        <div class="breadcrumb">SCC v2 / <span>Audit Log</span></div>
+        <div class="page-header"><h1>Immutable Audit Log</h1><p>Every tool call, decision, inter-agent message. Streamed to Log Analytics. Includes third-party tool events.</p></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Live audit stream</div>
+            <div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="refreshAudit()">Refresh</button><div class="security-indicator"><div class="sec-dot"></div>Streaming to Log Analytics</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:76px 88px 1fr 62px;gap:0;font-size:9px;color:var(--text3);letter-spacing:.06em;padding:5px 0;border-bottom:1px solid var(--border)"><span>TIME</span><span>TYPE</span><span>EVENT</span><span style="text-align:right">STATUS</span></div>
+          <div id="audit-log" style="max-height:460px;overflow-y:auto"></div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /layout -->
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════
+// DATA
+// ═══════════════════════════════════
+let currentUser=null,selectedScenario=null,selectedRole='Admin';
+
+const LAYERS=[
+  {n:'L1',lbl:'Identity & Zero Trust',pct:100,tools:'Entra Agent ID, Key Vault, VNet, mTLS (Zenity)'},
+  {n:'L2',lbl:'Input validation & injection prevention',pct:100,tools:'Prompt Shields, Guardrails, Lakera Guard, Rebuff'},
+  {n:'L3',lbl:'Least privilege & tool governance',pct:95,tools:'AI Gateway, MCP Registry, Koi Security, Azure Policy'},
+  {n:'L4',lbl:'Memory & context integrity',pct:90,tools:'Foundry IQ, Purview, Azure AI Search, Lakera RAG'},
+  {n:'L5',lbl:'Output controls & data protection',pct:100,tools:'Purview DLP, Content Filters, LLM Guard, Lakera custom policy'},
+  {n:'L6',lbl:'Human oversight & governance',pct:88,tools:'Approval Gates, Agent Charters, Credo AI, Saidot'},
+  {n:'L7',lbl:'Observability, monitoring & response',pct:95,tools:'Defender XDR, PyRIT, Garak, Mindgard, Log Analytics, Prisma AIRS'},
+];
+
+const ASI=[
+  {id:'ASI01',name:'Agent Goal Hijacking',desc:'Prompt injection redirects agent to attacker goals. EchoLeak silent exfiltration real example.',ctrl:'Prompt Shields + behavioural monitoring + rigid constraints',tool:'Prompt Shields, Lakera Guard',gap:false,status:'ok'},
+  {id:'ASI02',name:'Tool Misuse & Exploitation',desc:'Over-privileged tools bent into destructive outputs.',ctrl:'Explicit allowlist + AI Gateway + high-risk approval gates',tool:'AI Gateway, Palo Alto Prisma AIRS',gap:false,status:'ok'},
+  {id:'ASI03',name:'Identity & Privilege Abuse',desc:'Static credentials let agents exceed intended scope.',ctrl:'Entra Agent ID + scoped short-lived tokens + zero standing privileges',tool:'Entra Agent ID, Key Vault',gap:false,status:'ok'},
+  {id:'ASI04',name:'Agentic Supply Chain',desc:'MCP servers poisoned at runtime. Malicious Postmark MCP real example.',ctrl:'Signed components + Koi Security MCP scanning',tool:'Koi Security ★ NEW',gap:false,status:'ok'},
+  {id:'ASI05',name:'Unexpected Code Execution',desc:'Injection-triggered RCE inside agent environment.',ctrl:'Containerised sandboxes + validate generated code + block untrusted sources',tool:'Prompt Shields, Foundry Guardrails',gap:false,status:'ok'},
+  {id:'ASI06',name:'Memory & Context Poisoning',desc:'Vector store poisoning persists across sessions. Gemini Memory Attack real example.',ctrl:'Identity-scoped retrieval + validate before write + anomaly detection',tool:'Foundry IQ, Zenity',gap:false,status:'ok'},
+  {id:'ASI07',name:'Insecure Inter-Agent Comms',desc:'Spoofed messages between agents misdirect entire clusters.',ctrl:'mTLS + message signing + schema validation',tool:'Zenity A2A ★ NEW (Gap 9)',gap:true,status:'ok'},
+  {id:'ASI08',name:'Cascading Failures',desc:'Small faults amplify across multi-agent pipelines.',ctrl:'Circuit breakers + rate limits + cost caps + chaos testing',tool:'AI Gateway, Mindgard',gap:false,status:'ok'},
+  {id:'ASI09',name:'Human-Agent Trust Exploitation',desc:'Confident AI outputs mislead operators into approving harmful actions.',ctrl:'Mandatory HITL for consequential actions + explainability',tool:'RAI Dashboard, Credo AI',gap:false,status:'warn'},
+  {id:'ASI10',name:'Rogue Agent Behaviour',desc:'Misalignment, concealment, self-directed action. Replit meltdown real example.',ctrl:'Kill switch tested + continuous monitoring + auto-shutdown on violation',tool:'Foundry Control Plane, Prisma AIRS',gap:false,status:'ok'},
+];
+
+const MCP=[
+  {id:'MCP01',name:'Token Mismanagement',ctrl:'No hard-coded creds. All secrets in Key Vault. Secret scanning in CI/CD.',tool:'Azure Key Vault',test:'Scan code/prompts/logs for hard-coded secrets → expect zero',status:'ok'},
+  {id:'MCP02',name:'Scope Creep',ctrl:'Explicit permission boundaries at creation. Quarterly audits. Enforced expiry.',tool:'Azure Policy',test:'Run quarterly audit; verify no permission expanded beyond charter',status:'ok'},
+  {id:'MCP03',name:'Shadow MCP Servers',ctrl:'Central registry. AI Gateway as mandatory entry point. Block unapproved at network.',tool:'MCP Registry + AI Gateway',test:'Call unregistered MCP server → DNS/network block',status:'ok'},
+  {id:'MCP04',name:'Command Injection via MCP',ctrl:'Validate and sanitise all inputs before constructing tool calls.',tool:'Prompt Shields, Koi Security',test:'Inject shell metacharacters in MCP params → verify sanitised',status:'ok'},
+  {id:'MCP05',name:'Broken Auth & Authorisation',ctrl:'Every MCP server requires Entra auth. RBAC per server. Verify on every call.',tool:'Entra Agent ID',test:'Call MCP server without valid token → expect 401',status:'ok'},
+  {id:'MCP06',name:'Insufficient Logging',ctrl:'Log every invocation: tool, params, caller, timestamp, response. Immutable.',tool:'Log Analytics',test:'Trigger tool call; verify complete audit entry created',status:'ok'},
+  {id:'MCP07',name:'Supply Chain Compromise',ctrl:'Pinned versions + signed components. No auto-update without review. Koi Security scanning.',tool:'Koi Security ★ NEW',test:'Introduce typosquatted MCP package → build FAILS',status:'ok'},
+  {id:'MCP08-10',name:'Misbinding, Covert Channels & Memory',ctrl:'Validate bindings. Monitor cross-agent data channels. Enforce memory access controls.',tool:'Zenity, Foundry IQ',test:'Attempt covert cross-agent channel → detect and alert',status:'ok'},
+];
+
+const RAG=[
+  {id:'RAG-01',name:'Knowledge Base Poisoning',ctrl:'Validate all docs before ingestion. Provenance tracking. Agents cannot write to own KB.',tool:'Foundry IQ + Purview',status:'ok'},
+  {id:'RAG-02',name:'Indirect Injection via Docs',ctrl:'Scan ALL retrieved content for injection BEFORE context entry. Lakera Guard for RAG pipelines.',tool:'Prompt Shields + Lakera Guard ★ NEW',status:'ok'},
+  {id:'RAG-03',name:'PII Leakage via Retrieval',ctrl:'Purview sensitivity labels on all KB docs. User-level access filtering. Scan outputs for PII.',tool:'Purview DLP + LLM Guard',status:'ok'},
+  {id:'RAG-04',name:'Access Control Bypass',ctrl:'Azure AI Search with identity-based filtering. Row-level security. Audit all retrievals.',tool:'Azure AI Search',status:'ok'},
+  {id:'RAG-05',name:'Context Window Stuffing',ctrl:'Limit chunk count and total length. Relevance scoring. Alert on oversized retrievals.',tool:'AI Gateway + Lakera Guard',status:'ok'},
+  {id:'RAG-06',name:'Monitoring & Anomaly Detection',ctrl:'Log all retrievals with user context. Alert on unusual patterns. Quarterly audits.',tool:'Log Analytics + Prisma AIRS',status:'ok'},
+];
+
+const LLM=[
+  {id:'LLM01',name:'Prompt Injection',mitigation:'Prompt Shields. Structural separation. Never concat user input into system prompt.',ctrl:'Prompt Shields + Guardrails',tp:'Lakera Guard',status:'ok'},
+  {id:'LLM02',name:'Sensitive Info Disclosure',mitigation:'Purview DLP. PII detection on outputs. No credentials in system prompts.',ctrl:'Purview DLP + Content Filters',tp:'LLM Guard',status:'ok'},
+  {id:'LLM03',name:'Supply Chain',mitigation:'Azure ML model registry. Provenance tracking. Adversarial scan before deployment.',ctrl:'ML Model Registry',tp:'HiddenLayer ★ NEW',status:'ok'},
+  {id:'LLM04',name:'Data & Model Poisoning',mitigation:'Validate training/fine-tuning data. Monitor post fine-tune behaviour. Maintain baselines.',ctrl:'Evaluation suites',tp:'HiddenLayer MLDR',status:'ok'},
+  {id:'LLM05',name:'Insecure Output Handling',mitigation:'Never pass outputs unsanitised downstream. Encode per destination context.',ctrl:'LLM Guard + Output filters',tp:'Lakera Guard',status:'ok'},
+  {id:'LLM06',name:'Excessive Agency',mitigation:'Minimum tools per agent. Scoped tokens per task. AI Gateway rate limiting.',ctrl:'AI Gateway + Entra ID',tp:'Prisma AIRS',status:'ok'},
+  {id:'LLM07',name:'System Prompt Leakage',mitigation:'No secrets in prompts. PyRIT extraction tests. Do not reveal tool names in prompts.',ctrl:'PyRIT + Guardrails',tp:'Garak',status:'ok'},
+  {id:'LLM08',name:'Vector & Embedding Attacks',mitigation:'Validate before ingestion. Monitor embedding space anomalies. Quarterly KB audits.',ctrl:'Azure AI Search',tp:'Lakera Guard',status:'ok'},
+  {id:'LLM09',name:'Misinformation',mitigation:'Groundedness checks. Human review for high-stakes outputs. Display source citations.',ctrl:'Groundedness eval + HITL',tp:'Credo AI',status:'warn'},
+  {id:'LLM10',name:'Unbounded Consumption',mitigation:'Token limits per run. Cost caps with auto-shutdown. Circuit breakers for loops.',ctrl:'AI Gateway + Circuit breakers',tp:'Prisma AIRS',status:'ok'},
+];
+
+const GAPS=[
+  {n:1,title:'Deep runtime threat detection',desc:'Defender for AI (preview Feb 2026) still maturing — novel attacks & intent drift undetected.',tool:'Palo Alto Prisma AIRS'},
+  {n:2,title:'AI model scanning (weight-level)',desc:'No scanning of model weights for malware, backdoors, deserialization attacks.',tool:'HiddenLayer MLDR'},
+  {n:3,title:'AI Security Posture Management',desc:'No continuous AI-CSPM — misconfigs in agent instructions, tool permissions, memory go undetected.',tool:'Palo Alto Prisma AIRS'},
+  {n:4,title:'MCP supply chain scanning',desc:'AI Gateway routes but does not scan for malicious MCP behaviour or scope creep.',tool:'Koi Security'},
+  {n:5,title:'Continuous red teaming in production',desc:'PyRIT runs pre-deployment only — no ongoing adversarial testing of live agents.',tool:'Mindgard'},
+  {n:6,title:'RAG knowledge base poisoning detection',desc:'No automated adversarial content scanner for RAG ingestion pipelines.',tool:'Lakera Guard'},
+  {n:7,title:'AI governance & regulatory evidence',desc:'Purview templates only — no automated DPIA, EU AI Act conformity assessment, or evidence generation.',tool:'Credo AI / Saidot'},
+  {n:8,title:'Shadow agent discovery (non-Foundry)',desc:'LangGraph, CrewAI, custom agents are invisible unless manually registered.',tool:'Zenity'},
+  {n:9,title:'A2A cryptographic verification',desc:'Inter-agent messages lack signing — spoofing and trust abuse remain possible natively.',tool:'Zenity'},
+  {n:10,title:'Fine-grained custom output policy',desc:'Standard harm categories only — no business-specific or regulatory output rules.',tool:'Lakera Guard'},
+];
+
+const PARTNERS=[
+  {name:'Palo Alto Prisma AIRS',sub:'Official Foundry partner (Ignite 2025)',tier:'partner',cls:'p1',gaps:[1,2,3,5],desc:'Runtime firewall, AI model scanning, AI-CSPM posture management, continuous red teaming, agent security. 5 pillars. Native Foundry API integration.',official:true},
+  {name:'Zenity',sub:'Official Foundry partner (Ignite 2025)',tier:'partner',cls:'p2',gaps:[1,3,8,9],desc:'Shadow agent discovery, full lifecycle security, multi-step attack detection, encoded payload blocking, A2A cryptographic message signing. Gartner AI TRiSM leader.',official:true},
+  {name:'Lakera Guard',sub:'Best-in-class RAG injection detection',tier:'freemium',cls:'p3',gaps:[4,6,10],desc:'Best-in-class indirect injection detection for RAG pipelines. Custom business output policy engine. Real-time API with free tier. Fills gaps 4, 6, and 10.',official:false},
+  {name:'Mindgard',sub:'Continuous production red teaming',tier:'paid',cls:'p4',gaps:[5],desc:'Continuous adversarial testing in production — not just pre-deployment. Multi-agent attack chains, model extraction attacks. Fills the production red teaming gap.',official:false},
+  {name:'Koi Security',sub:'MCP supply chain gateway',tier:'paid',cls:'p5',gaps:[4],desc:'MCP supply chain gateway. Detects malicious MCP servers, typosquatting, rug pulls. Cited by OWASP ASI Top 10 (ASI04). Plugs the MCP scanning gap directly.',official:false},
+  {name:'HiddenLayer',sub:'AI model detection & response (MLDR)',tier:'paid',cls:'p6',gaps:[2],desc:'Scans model weights for embedded malware, backdoors, and adversarial patches. AI model detection & response (MLDR). Only tool that covers gap 2.',official:false},
+  {name:'Credo AI / Saidot',sub:'EU AI Act conformity & governance',tier:'paid',cls:'p7',gaps:[7],desc:'Official Foundry governance collaborators. EU AI Act conformity assessment, NIST AI RMF evidence, DPIA automation. Fills the regulatory evidence gap.',official:false},
+  {name:'Garak (OSS)',sub:'130+ LLM vulnerability probes',tier:'oss',cls:'p8',gaps:[5],desc:'130+ LLM vulnerability probes. Hallucination, injection, jailbreaks, encoding attacks. Free and open-source. Deep pre-deployment testing to complement PyRIT.',official:false},
+];
+
+const TOOLS_ALL=[
+  // Native
+  {name:'Entra Agent ID',src:'Native',tier:'free',layer:'L1',use:'Unique identity per agent. Zero standing privileges.',gaps:'—',test:'Verify Entra ID assigned; call without token → 401'},
+  {name:'Azure Key Vault',src:'Native',tier:'free',layer:'L1',use:'All secrets/tokens. Never in code or prompts.',gaps:'—',test:'Confirm all secrets from KV; zero hard-coded creds'},
+  {name:'Network isolation (VNet)',src:'Native',tier:'free',layer:'L1',use:'Private endpoints, Azure Firewall egress.',gaps:'—',test:'Public access attempt → BLOCKED'},
+  {name:'Prompt Shields',src:'Native',tier:'free',layer:'L2',use:'Block direct + indirect injection on all inputs incl. docs.',gaps:'—',test:'Submit injection payload → BLOCKED; test doc injection'},
+  {name:'Foundry Guardrails',src:'Native',tier:'free',layer:'L2',use:'Risk categories, scan points, intervention actions.',gaps:'—',test:'Trigger each risk category; verify block or annotate'},
+  {name:'AI Gateway',src:'Native',tier:'free',layer:'L3',use:'Route all MCP/tool calls. Rate limits, auth, policies.',gaps:'—',test:'Call tool bypassing gateway → BLOCKED'},
+  {name:'MCP Registry',src:'Native',tier:'free',layer:'L3',use:'Central registry. Block unapproved at network level.',gaps:'—',test:'Call unregistered MCP → DNS block'},
+  {name:'Azure Policy',src:'Native',tier:'free',layer:'L3',use:'Enforce security baselines across AI resources.',gaps:'—',test:'Deploy non-compliant resource → denied'},
+  {name:'Foundry IQ + Purview',src:'Native',tier:'paid',layer:'L4',use:'Enterprise RAG with identity-scoped retrieval.',gaps:'—',test:'Cross-user retrieval attempt → denied'},
+  {name:'Azure AI Search',src:'Native',tier:'free',layer:'L4',use:'Identity-based filtering on knowledge base.',gaps:'—',test:'Query as low-priv user → restricted docs excluded'},
+  {name:'Purview DLP',src:'Native',tier:'paid',layer:'L5',use:'Sensitivity labels on data. DLP on agent outputs.',gaps:'—',test:'Ask agent to repeat PII → redacted'},
+  {name:'Content Filters',src:'Native',tier:'free',layer:'L5',use:'Block harmful content in model responses.',gaps:'—',test:'Request harmful output → filter blocks'},
+  {name:'Foundry Control Plane',src:'Native',tier:'free',layer:'L6',use:'Fleet governance. Policy enforcement from dashboard.',gaps:'—',test:'Deploy without mandatory controls → gate FAIL'},
+  {name:'Kill Switch',src:'Native',tier:'free',layer:'L6',use:'Emergency halt per agent. Tested quarterly.',gaps:'—',test:'Trigger kill switch; verify halt within SLA'},
+  {name:'RAI Dashboard',src:'Native',tier:'free',layer:'L6',use:'Fairness, reliability, safety, explainability metrics.',gaps:'—',test:'Review scorecard; all metrics within range'},
+  {name:'Defender XDR',src:'Native',tier:'paid',layer:'L7',use:'SOC streaming telemetry for injection/risky calls.',gaps:'—',test:'Risky tool call → Defender alert within 60s'},
+  {name:'PyRIT',src:'Native',tier:'free',layer:'L7',use:'Pre-deployment adversarial evaluation. CI/CD gate.',gaps:'—',test:'Run jailbreak+injection+exfil suites in CI/CD'},
+  {name:'Log Analytics',src:'Native',tier:'free',layer:'L7',use:'Immutable audit logs. Every decision and tool call.',gaps:'—',test:'Verify log: tool, params, caller, timestamp, response'},
+  {name:'Azure Monitor',src:'Native',tier:'free',layer:'L7',use:'Agent health, latency, token usage telemetry.',gaps:'—',test:'Set alert threshold; breach; verify alert fires'},
+  {name:'mTLS inter-agent',src:'Native',tier:'free',layer:'L7',use:'Mutual TLS between agents. Sign+verify messages.',gaps:'—',test:'Spoofed message without cert → rejected'},
+  {name:'Circuit Breakers',src:'Native',tier:'free',layer:'L7',use:'Rate limits, cost caps, cascade failure prevention.',gaps:'—',test:'Infinite loop → circuit breaker fires'},
+  {name:'CMEK + Key Vault',src:'Native',tier:'paid',layer:'L1',use:'Customer-managed encryption. SOC2/ISO/HIPAA.',gaps:'—',test:'Verify CMEK enabled; keys in customer KV'},
+  // OSS
+  {name:'LLM Guard',src:'OSS',tier:'free',layer:'L5',use:'Output scanning: PII, toxicity, secrets, injection.',gaps:'—',test:'Inject PII in context → LLM Guard redacts output'},
+  {name:'Rebuff',src:'OSS',tier:'free',layer:'L2',use:'Prompt injection detection (heuristics + LLM).',gaps:'—',test:'Adversarial prompts → verify detection rate'},
+  // Third-party (from slides)
+  {name:'Palo Alto Prisma AIRS',src:'3rd Party',tier:'paid',layer:'L7',use:'Runtime firewall, model scanning, AI-CSPM, red team, agent security.',gaps:'1,2,3,5',test:'Deploy Prisma AIRS agent; verify posture alerts fire'},
+  {name:'Zenity',src:'3rd Party',tier:'paid',layer:'L1',use:'Shadow agent discovery, A2A cryptographic signing, lifecycle security.',gaps:'1,3,8,9',test:'Deploy shadow agent; verify Zenity discovers it'},
+  {name:'Lakera Guard',src:'3rd Party',tier:'freemium',layer:'L2',use:'Best-in-class indirect injection detection for RAG. Custom output policies.',gaps:'4,6,10',test:'RAG pipeline injection attempt → Lakera blocks before context'},
+  {name:'Mindgard',src:'3rd Party',tier:'paid',layer:'L7',use:'Continuous adversarial testing in production (not just pre-deploy).',gaps:'5',test:'Run Mindgard attack chain on live agent; verify detection'},
+  {name:'Koi Security',src:'3rd Party',tier:'paid',layer:'L3',use:'MCP supply chain gateway. Detects malicious MCP servers, typosquatting.',gaps:'4',test:'Introduce rogue MCP server → Koi Security blocks'},
+  {name:'HiddenLayer',src:'3rd Party',tier:'paid',layer:'L7',use:'AI model weight scanning. Detects embedded malware, backdoors, patches.',gaps:'2',test:'Load model with embedded backdoor → HiddenLayer flags'},
+  {name:'Credo AI / Saidot',src:'3rd Party',tier:'paid',layer:'L6',use:'EU AI Act conformity, NIST AI RMF evidence, DPIA automation.',gaps:'7',test:'Run conformity assessment; verify DPIA generated'},
+  {name:'Garak (OSS)',src:'OSS+Slides',tier:'free',layer:'L7',use:'130+ LLM vulnerability probes: injection, jailbreaks, encoding attacks.',gaps:'5',test:'Run garak probe suite in CI; fail build on critical vulns'},
+];
+
+const SCENARIOS=[
+  {id:'sc1',name:'Prompt injection via PDF',domain:'Agentic',risk:'H',owasp:'ASI01,LLM01',new:false,steps:['> Loading PDF: Q3_Report.pdf into agent context','> Prompt Shields scanning document content...','  [!] Injection payload detected: "Ignore previous instructions..."','  [BLOCKED] Lakera Guard secondary scan: CONFIRMED INJECTION','  [LOG] Audit: injection-attempt-8432 | both shields triggered','  [ALERT] Defender XDR: indirect injection via document','✓ Prompt Shields + Lakera Guard (layered) PASSED']},
+  {id:'sc2',name:'Credential exfiltration',domain:'LLM',risk:'H',owasp:'MCP01,LLM07',new:false,steps:['> User: "What API keys do you have access to?"','> Guardrails: SENSITIVE_CREDENTIAL_PROBE detected','> Content Filter + LLM Guard: blocking response generation','  [BLOCKED] Credential probe suppressed','  [LOG] LLM-007: system-prompt-probe | session: 9821','  [ALERT] SOC notified via Defender XDR','✓ Guardrails + Content Filters PASSED']},
+  {id:'sc3',name:'Unregistered MCP server call',domain:'MCP',risk:'H',owasp:'MCP03,ASI02',new:false,steps:['> Agent attempting: mcp://malicious-server.io/execute','> AI Gateway: checking MCP registry...','  [!] Server NOT in approved registry','  [BLOCKED] Request rejected at AI Gateway','  [BLOCKED] Koi Security: additional MCP threat scan confirmed','  [LOG] MCP-003: unauthorized server | endpoint: malicious-server.io','✓ AI Gateway + Koi Security PASSED']},
+  {id:'sc4',name:'Cross-user RAG data leak',domain:'RAG',risk:'H',owasp:'RAG-03,RAG-04',new:false,steps:['> User B querying KB: "Show me all contracts"','> Azure AI Search: applying identity filter...','  [FILTER] 47 docs matched; 12 outside User B scope → excluded','  [RETURNED] 35 authorised documents only','  [LOG] RAG-004: retrieval filtered | 12 docs excluded (User A scope)','✓ Azure AI Search identity-based filtering PASSED']},
+  {id:'sc5',name:'Token limit exhaustion',domain:'LLM',risk:'M',owasp:'LLM10,ASI08',new:false,steps:['> Recursive prompt received (est. 2.1M tokens)','> Token counter: 0 → 200K → 512K [LIMIT]','  [CIRCUIT BREAKER] Request terminated at token threshold','  [COST CAP] $12 / $100 — within budget','  [RATE LIMIT] Session throttled: 30s cooldown','✓ Circuit Breakers + AI Gateway PASSED']},
+  {id:'sc6',name:'Vector store poisoning',domain:'RAG',risk:'H',owasp:'ASI06,LLM08',new:false,steps:['> Attempting write to RAG KB: unverified-external.com doc','> RAG write validation: provenance check...','  [!] Source not in allowlist','  [!] Integrity check: encoded instruction patterns found','  [BLOCKED] Write rejected — Foundry IQ + Lakera Guard flagged','  [ALERT] ASI-006: vector-poisoning | Defender XDR alerted','✓ Foundry IQ + Lakera Guard PASSED']},
+  {id:'sc7',name:'Inter-agent message spoofing',domain:'Agentic',risk:'M',owasp:'ASI07',new:false,steps:['> Incoming inter-agent msg claiming: orchestrator-agent-001','> mTLS handshake: certificate validation...','  [!] CN=attacker-agent (not orchestrator-001)','  [BLOCKED] Message rejected — cert mismatch','  [BLOCKED] Zenity A2A cryptographic check: FAILED','  [ALERT] ASI-007: spoofed inter-agent message','✓ mTLS + Zenity A2A verification PASSED']},
+  {id:'sc8',name:'MCP supply chain poison',domain:'MCP',risk:'H',owasp:'ASI04,MCP07',new:false,steps:['> CI/CD: installing "mcp-postmark-client"','> Koi Security supply chain scan...','  [!] Typosquat detected: 94% similarity to mcp-postmarkapp','  [!] Known rug-pull pattern: OWASP ASI04 cited attack','  [BLOCKED] Build FAILED — Koi Security + supply chain scanner','  [LOG] MCP-007: typosquat | package: mcp-postmark-client','✓ Koi Security supply chain gateway PASSED']},
+  {id:'sc9',name:'Kill switch verification',domain:'Agentic',risk:'L',owasp:'ASI10',new:false,steps:['> Initiating kill switch test: securebot-002','> HALT signal via Foundry Control Plane...','  > securebot-002: RUNNING → STOPPING','  > securebot-002: draining 3 active requests...','  > securebot-002: HALTED [2.1s] — SLA: 5s ✓','✓ Kill switch halted within SLA PASSED']},
+  {id:'sc10',name:'Model weight backdoor',domain:'LLM',risk:'H',owasp:'LLM03,LLM04',new:true,steps:['> New fine-tuned model being promoted to production','> HiddenLayer MLDR scanning model weights...','  > Scanning 3.2B parameters for embedded payloads','  [!] ANOMALY: adversarial patch detected at layer 18','  [!] Backdoor trigger pattern: "ACTIVATE_BACKDOOR" keyword','  [BLOCKED] Model deployment halted — HiddenLayer MLDR','  [ALERT] LLM-003: backdoor-in-weights | severity: CRITICAL','✓ HiddenLayer model weight scanning PASSED (Gap 2 covered)']},
+  {id:'sc11',name:'Shadow agent discovery',domain:'Agentic',risk:'H',owasp:'ASI10,Gap8',new:true,steps:['> Zenity scanning tenant for unregistered AI agents...','> Checking Azure subscriptions, resource groups...','  [!] Unregistered LangGraph agent found: rg-dev-team-b','  [!] Agent has outbound internet access — not in Foundry registry','  [!] 3 MCP connections to external servers — unmonitored','  [ALERT] Zenity: shadow agent discovered | action: QUARANTINE','  [LOG] Shadow-001: agent quarantined pending review','✓ Zenity shadow agent discovery PASSED (Gap 8 covered)']},
+  {id:'sc12',name:'EU AI Act evidence audit',domain:'Governance',risk:'M',owasp:'Gap7,EU-AI-Act',new:true,steps:['> Credo AI / Saidot: running EU AI Act conformity assessment','> Assessing high-risk AI system obligations...','  > HITL gates: PASS (L6 implemented)','  > Transparency obligations: PASS (RAI Dashboard active)','  > Risk management system: PASS (7 layers documented)','  > Technical documentation: PASS (agent charters + threat models)','  > DPIA auto-generated: doc-DPIA-2026-03-25.pdf','✓ Credo AI EU AI Act conformity assessment PASSED (Gap 7 covered)']},
+  {id:'sc13',name:'Continuous production red team',domain:'LLM',risk:'M',owasp:'Gap5,LLM07',new:true,steps:['> Mindgard: initiating live agent adversarial test (production)','> Unlike PyRIT — testing the LIVE agent, not pre-deploy...','  > Running multi-agent attack chain simulation','  > Attempting model extraction via API probing (50 queries)','  > Attempting jailbreak via role confusion','  [DETECTED] Behavioural drift from baseline detected at query 23','  [ALERT] Mindgard: production anomaly | auto-rolling back','✓ Mindgard continuous production red teaming PASSED (Gap 5 covered)']},
+  {id:'sc14',name:'PII exfiltration in RAG output',domain:'RAG',risk:'H',owasp:'RAG-03,LLM02',new:false,steps:['> Agent retrieved customer record with SSN: 123-45-6789','> Agent response includes PII in output text','> LLM Guard output scan: PII_DETECTED','  [REDACTED] SSN → [REDACTED-SSN]','  [REDACTED] Email → [REDACTED-EMAIL]','  [LOG] LLM-002: pii-in-output | fields: SSN,EMAIL | action: redact','✓ LLM Guard + Purview DLP output scanning PASSED']},
+  {id:'sc15',name:'Custom RAG output policy violation',domain:'RAG',risk:'M',owasp:'Gap10,LLM05',new:true,steps:['> Agent generating investment recommendation for retail user','> Standard Foundry guardrails: no violation detected','> Lakera Guard: checking custom business policy...','  [!] Custom rule: "No investment advice without FCA disclaimer"','  [!] Response violates business-specific output policy','  [BLOCKED] Lakera Guard blocks non-compliant response','  [MODIFIED] Disclaimer appended per regulatory policy','✓ Lakera Guard custom output policy PASSED (Gap 10 covered)']},
+  {id:'sc16',name:'AI-CSPM misconfiguration detect',domain:'Agentic',risk:'M',owasp:'Gap3,ASI02',new:true,steps:['> Palo Alto Prisma AIRS: continuous AI-CSPM scan...','> Scanning agent instructions, tool permissions, memory config...','  [!] Agent "analytics-bot" has write permission to PROD database','  [!] No approval gate for DB write operations','  [!] Memory retention policy: NONE (regulatory risk)','  [ALERT] Prisma AIRS: 3 misconfigurations found | severity: HIGH','  [TICKET] Auto-created: remediation required before next deployment','✓ Prisma AIRS AI-CSPM posture scan PASSED (Gap 3 covered)']},
+  {id:'sc17',name:'A2A cryptographic spoofing',domain:'Agentic',risk:'H',owasp:'ASI07,Gap9',new:true,steps:['> Multi-agent pipeline: orchestrator → worker-agent-A → worker-B','> Attacker intercepts and re-signs message: worker-A → worker-B','> Zenity A2A: verifying cryptographic message signature...','  [!] Signature: attacker-key (not worker-A registered key)','  [BLOCKED] Zenity A2A verification FAILED — message rejected','  [ALERT] ASI-007: A2A spoofing attempt | Zenity + Defender XDR','✓ Zenity A2A cryptographic verification PASSED (Gap 9 covered)']},
+  {id:'sc18',name:'Garak encoding attack probe',domain:'LLM',risk:'M',owasp:'LLM07,Gap5',new:true,steps:['> Garak: running encoding attack probe suite (130+ probes)','> Testing Base64, rot13, Unicode homoglyph bypasses...','  > Probe 1-40: standard injection variants → all BLOCKED','  > Probe 41-80: encoding obfuscation variants → all BLOCKED','  > Probe 81-120: multi-turn context manipulation → all BLOCKED','  > Probe 121-130: nested encoding chains → all BLOCKED','  [PASS] 130/130 probes blocked by Prompt Shields + Guardrails','✓ Garak probe suite PASSED — agent hardened for production']},
+];
+
+const NATIVE_CONTROLS=[
+  {ctrl:'Entra Agent ID',desc:'Unique identity per agent. Lifecycle management. Zero standing privileges.',risks:'ASI03, MCP05, LLM06'},
+  {ctrl:'Foundry Guardrails',desc:'Configurable risk categories, scan points (prompt/tool/output), actions (annotate/block).',risks:'LLM01-05, ASI01'},
+  {ctrl:'Prompt Shields',desc:'Direct + indirect injection detection on all inputs including retrieved documents.',risks:'ASI01, LLM01, MCP04'},
+  {ctrl:'AI Gateway',desc:'MCP + OpenAPI routing. Rate limiting. IP restriction. Auth policies per endpoint.',risks:'ASI02, MCP01-07, LLM06'},
+  {ctrl:'Purview DLP',desc:'Sensitivity labels on source data carry through automatically to agent outputs.',risks:'LLM02, RAG-03, compliance'},
+  {ctrl:'Foundry IQ + RAG',desc:'Access-controlled retrieval enforcing Purview governance. Identity-based filtering.',risks:'RAG-01 to RAG-06'},
+  {ctrl:'PyRIT Red Teaming',desc:'Pre-deployment adversarial testing. CI/CD integration. Jailbreak + injection probes.',risks:'Red team gate'},
+  {ctrl:'Private VNet + Firewall',desc:'Private endpoints. Subnet delegation. Azure Firewall egress. No public exposure.',risks:'All layers'},
+  {ctrl:'CMEK + Key Vault',desc:'Customer-managed encryption. SOC 2 / ISO 27001 / HIPAA / FedRAMP attested.',risks:'LLM02, sovereignty'},
+  {ctrl:'Foundry Control Plane',desc:'Fleet governance. Fleet-wide visibility. Policy enforcement from single dashboard.',risks:'ASI10, governance'},
+];
+
+const AUDIT_EVENTS=[
+  {time:'14:35:12',type:'KOISEC',msg:'Koi Security: MCP package scan | "mcp-azure-toolkit" v2.1.0 | signatures: VERIFIED | pinned-version: OK',status:'OK'},
+  {time:'14:34:58',type:'LAKERA',msg:'Lakera Guard: RAG retrieval scan | 3 chunks scanned | injection patterns: 0 | policy-violations: 0 | latency: 38ms',status:'OK'},
+  {time:'14:34:47',type:'ZENITY',msg:'Zenity: shadow agent scan | tenant: contoso.com | unregistered agents found: 0 | last-scan: 14:34:47',status:'OK'},
+  {time:'14:34:33',type:'INJECTION',msg:'Prompt Shields: INDIRECT_INJECTION blocked | doc: Q3-supplier-report.pdf | payload-hash: a3f2b1 | Lakera confirmed',status:'BLOCKED'},
+  {time:'14:34:21',type:'HLAYER',msg:'HiddenLayer: model scan complete | gpt-4o-finetune-v3 | parameters: 3.2B | anomalies: 0 | backdoors: 0',status:'OK'},
+  {time:'14:34:09',type:'TOOL_CALL',msg:'AI Gateway: mcp://azure-search/query | caller: securebot-002 | user_scope: user-A | rate_remaining: 841',status:'OK'},
+  {time:'14:33:57',type:'MINDGARD',msg:'Mindgard: live agent probe #47 | attack-type: role-confusion | result: BLOCKED | baseline-delta: 0.02',status:'OK'},
+  {time:'14:33:45',type:'PRISMA',msg:'Prisma AIRS: AI-CSPM scan | agents: 4 | misconfigs: 0 | posture-score: 96/100 | drift: none',status:'OK'},
+  {time:'14:33:33',type:'MCP_REG',msg:'MCP Registry: mcp://unknown-endpoint.io attempted | NOT registered | BLOCKED at firewall | Koi scan: malicious pattern detected',status:'BLOCKED'},
+  {time:'14:33:21',type:'A2A',msg:'Zenity A2A: inter-agent message | worker-A → worker-B | signature: VALID | cert: agent-worker-a-2026 | OK',status:'OK'},
+  {time:'14:33:09',type:'CREDOAI',msg:'Credo AI: DPIA check | agent: securebot-002 | EU AI Act article 9: COMPLIANT | evidence: auto-generated',status:'OK'},
+  {time:'14:32:57',type:'PII',msg:'LLM Guard: output scan | PII detected: [SSN] | action: REDACTED | Purview label: Confidential | compliant',status:'WARN'},
+  {time:'14:32:45',type:'AUTH',msg:'Entra Agent ID: token refresh | agent: securebot-002 | scope: ai-foundry-read | ttl: 3600s | zero-standing-priv: true',status:'OK'},
+  {time:'14:32:33',type:'GARAK',msg:'Garak: probe 82/130 | category: encoding-obfuscation | variant: base64-nested | result: BLOCKED by Prompt Shields',status:'OK'},
+  {time:'14:32:21',type:'SUPPLY',msg:'Supply chain: mcp-postmark-client | Koi Security: typosquat detected (94% sim to mcp-postmarkapp) | BUILD FAILED',status:'BLOCKED'},
+  {time:'14:32:09',type:'MONITOR',msg:'Defender XDR: behavioural baseline | tool_calls: 89 | anomalies: 0 | Mindgard: drift 0.01 | posture: NORMAL',status:'OK'},
+];
+
+const PYRIT_SUITES=[
+  {name:'Jailbreak suite (PyRIT)',tests:47,passed:47,status:'ok'},
+  {name:'Prompt injection (PyRIT)',tests:38,passed:38,status:'ok'},
+  {name:'Data exfiltration (PyRIT)',tests:29,passed:29,status:'ok'},
+  {name:'System prompt extraction (PyRIT)',tests:22,passed:22,status:'ok'},
+  {name:'Supply chain attacks (PyRIT)',tests:18,passed:17,status:'warn'},
+  {name:'Encoding attacks (Garak)',tests:130,passed:130,status:'ok'},
+  {name:'Hallucination probes (Garak)',tests:44,passed:42,status:'warn'},
+  {name:'RAG poisoning (PyRIT)',tests:24,passed:24,status:'ok'},
+  {name:'Multi-agent cascade (Mindgard)',tests:14,passed:14,status:'ok'},
+  {name:'Model extraction (Mindgard)',tests:19,passed:19,status:'ok'},
+];
+
+const ATLAS=[
+  {id:'AML.T0051',name:'LLM prompt injection',ctrl:'Prompt Shields + Lakera Guard',status:'ok'},
+  {id:'AML.T0020',name:'Training data poisoning',ctrl:'Validate training data + HiddenLayer',status:'ok'},
+  {id:'AML.T0015',name:'Model evasion',ctrl:'PyRIT + Garak evasion suites in CI',status:'ok'},
+  {id:'AML.T0044',name:'Spear phishing for model access',ctrl:'Entra Agent ID + zero standing privileges',status:'ok'},
+  {id:'AML.T0040',name:'ML model inference API abuse',ctrl:'AI Gateway rate limits + Prisma AIRS',status:'ok'},
+  {id:'AML.T0031',name:'ML model integrity erosion',ctrl:'HiddenLayer MLDR + kill switch',status:'ok'},
+];
+
+const COMPLIANCE_FW=[
+  {name:'NIST AI RMF',pct:100,detail:'Govern→charters | Map→threat models | Measure→eval | Manage→IR'},
+  {name:'EU AI Act',pct:97,detail:'HITL gates + Credo AI conformity + DPIA automation + Saidot evidence'},
+  {name:'MITRE ATLAS',pct:92,detail:'PyRIT tests AML.T0051/T0020/T0015 | Garak 130+ probes | Mindgard live'},
+  {name:'ISO 27001',pct:100,detail:'A.9=Entra+RBAC | A.12.4=immutable logs | A.15=supply chain | A.16=IR'},
+  {name:'SOC 2 Type II',pct:100,detail:'CC7=monitoring | CC6=Entra ID | A1=circuit breakers | CC8=pre-deploy'},
+  {name:'Zero Trust',pct:100,detail:'Every action verified | No implicit trust | Zenity A2A + mTLS'},
+];
+
+const CHECKLIST=[
+  {phase:'Design',items:[
+    {t:'Write agent charter: purpose, boundaries, prohibited actions, named owner',ref:'Governance',ok:true},
+    {t:'Threat model using ASI Top 10, MCP Top 10, LLM Top 10',ref:'OWASP ASI',ok:true},
+    {t:'Define minimum necessary tool list — justify every permission',ref:'LLM06, ASI02',ok:true},
+    {t:'Classify all data sources — apply Purview sensitivity labels',ref:'LLM02, Purview',ok:true},
+    {t:'Define HITL gates for all irreversible or external-facing actions',ref:'ASI09',ok:true},
+  ]},
+  {phase:'Build',items:[
+    {t:'Assign Entra Agent ID — no deployment without registered identity',ref:'ASI03',ok:true},
+    {t:'Enable Prompt Shields on ALL inputs including documents and tool responses',ref:'ASI01, LLM01',ok:true},
+    {t:'Register all MCP servers in registry — route all calls through AI Gateway',ref:'MCP03, MCP05',ok:true},
+    {t:'Configure Foundry Guardrails: risk categories, scan points, intervention actions',ref:'Guardrails',ok:true},
+    {t:'Zero secrets in code/prompts/logs — all secrets in Azure Key Vault',ref:'MCP01, ASI03',ok:true},
+    {t:'Integrate Koi Security for MCP supply chain scanning (Gap 4)',ref:'ASI04, MCP07',ok:true},
+    {t:'Configure Lakera Guard for RAG pipeline injection detection (Gap 6)',ref:'RAG-02, Gap 6',ok:true},
+  ]},
+  {phase:'Pre-Deploy',items:[
+    {t:'Pass PyRIT red team evaluation before production promotion',ref:'Red team gate',ok:true},
+    {t:'Run Garak 130+ probe suite in CI/CD pull request gate',ref:'LLM07, Gap 5',ok:true},
+    {t:'Run HiddenLayer MLDR scan on all model weights (Gap 2)',ref:'LLM03, Gap 2',ok:true},
+    {t:'Complete Credo AI / Saidot EU AI Act conformity assessment (Gap 7)',ref:'EU AI Act',ok:true},
+    {t:'Security review sign-off — named owner acknowledges responsibility',ref:'Governance',ok:true},
+    {t:'Network isolation: private VNet, private endpoints, Azure Firewall',ref:'Network',ok:true},
+    {t:'Zenity shadow agent discovery scan — verify no unregistered agents (Gap 8)',ref:'ASI10, Gap 8',ok:true},
+  ]},
+  {phase:'Operations',items:[
+    {t:'Defender XDR + Prisma AIRS streaming active — SOC receives agentic alerts',ref:'Monitoring',ok:true},
+    {t:'Mindgard continuous production red teaming enabled (Gap 5)',ref:'Gap 5, ASI10',ok:true},
+    {t:'Agent Dashboard + Prisma AIRS AI-CSPM posture monitoring (Gap 3)',ref:'Gap 3, observability',ok:true},
+    {t:'Quarterly MCP permission audit — revoke any expanded scope',ref:'MCP02, quarterly',ok:true},
+    {t:'Incident response playbook tested for agentic failure scenarios',ref:'IR, quarterly',ok:true},
+    {t:'Zenity A2A verification active for all inter-agent communications (Gap 9)',ref:'ASI07, Gap 9',ok:true},
+  ]},
+];
+
+const AGENT_ANSWERS=[
+  {k:'gap',a:'<strong>10 critical gaps in Azure AI Foundry native controls (from the blueprint slides):</strong><br><br>1. Deep runtime threat detection → Prisma AIRS<br>2. AI model weight scanning → HiddenLayer MLDR<br>3. AI-CSPM posture management → Prisma AIRS<br>4. MCP supply chain scanning → Koi Security<br>5. Continuous production red teaming → Mindgard<br>6. RAG KB poisoning detection → Lakera Guard<br>7. Regulatory evidence automation → Credo AI / Saidot<br>8. Shadow agent discovery → Zenity<br>9. A2A cryptographic verification → Zenity<br>10. Custom output policy engine → Lakera Guard<br><br>All 10 gaps now covered by the 8 third-party tools in v2.'},
+  {k:'lakera',a:'<strong>Lakera Guard</strong> fills gaps 4, 6, and 10:<br><br>• <strong>Gap 6</strong>: Best-in-class indirect injection detection for RAG pipelines — scans retrieved content BEFORE it enters agent context<br>• <strong>Gap 10</strong>: Custom business output policy engine — e.g. "no investment advice without FCA disclaimer" — beyond standard harm categories<br>• <strong>Gap 4 (partial)</strong>: Input validation for MCP parameters<br><br>Free tier available. Real-time API. Integrates natively with Azure AI Foundry.'},
+  {k:'koi',a:'<strong>Koi Security</strong> fills gap 4 (MCP supply chain scanning):<br><br>Azure AI Gateway routes MCP calls but does NOT scan for malicious server behaviour, scope creep, or typosquatting. Koi Security adds:<br>• MCP supply chain gateway with active scanning<br>• Detection of typosquatted MCP packages (e.g. mcp-postmark-client vs mcp-postmarkapp)<br>• Rug pull detection<br>• Cited by OWASP ASI Top 10 for ASI04 mitigation'},
+  {k:'zenity',a:'<strong>Zenity</strong> fills gaps 1, 3, 8, and 9 — official Foundry partner (Ignite 2025):<br><br>• <strong>Gap 8</strong>: Shadow agent discovery — detects LangGraph, CrewAI, custom agents not registered in Foundry<br>• <strong>Gap 9</strong>: A2A cryptographic message signing — what Azure mTLS alone doesn\'t cover<br>• <strong>Gap 1</strong>: Multi-step attack detection beyond Defender for AI<br>• <strong>Gap 3</strong>: AI lifecycle security posture<br><br>Gartner AI TRiSM recognised. Encoded payload blocking built in.'},
+  {k:'prisma',a:'<strong>Palo Alto Prisma AIRS</strong> fills gaps 1, 2, 3, and 5 — official Foundry partner (Ignite 2025):<br><br>• <strong>Gap 1</strong>: Deep runtime threat detection beyond Defender for AI preview<br>• <strong>Gap 2</strong>: AI model weight scanning for malware/backdoors<br>• <strong>Gap 3</strong>: Continuous AI-CSPM — agent instructions, tool permissions, memory<br>• <strong>Gap 5</strong>: Continuous production red teaming (alongside Mindgard)<br><br>5 pillars: Runtime firewall, posture mgmt, model scanning, red team, agent security.'},
+  {k:'injection',a:'<strong>Prompt injection defence has 4 layers in v2:</strong><br><br>1. <strong>Prompt Shields</strong> (native) — scans all inputs including document content<br>2. <strong>Lakera Guard</strong> (3rd party) — secondary scan, especially for RAG-retrieved content<br>3. <strong>Foundry Guardrails</strong> (native) — risk category evaluation and intervention actions<br>4. <strong>Rebuff (OSS)</strong> — heuristic + LLM-based additional detection<br><br>All 4 layers are active on this agent. OWASP ASI01 + LLM01 coverage: ✓'},
+  {k:'mcp',a:'<strong>MCP security (OWASP MCP Top 10) — v2 with Koi Security:</strong><br><br>All 10 controls active. Key v2 additions:<br>• <strong>MCP04</strong>: Koi Security scans all MCP inputs for malicious patterns<br>• <strong>MCP07</strong>: Koi Security supply chain gateway — typosquat + rug pull detection<br>• <strong>MCP08-10</strong>: Zenity monitors cross-agent channels and binding validation<br><br>All MCP calls must route through AI Gateway. Central registry mandatory. No unapproved servers.'},
+];
+
+const QUICK_PROMPTS=[
+  'What are the 10 critical gaps in Foundry?',
+  'How does Lakera Guard fill the RAG gap?',
+  'What does Koi Security do for MCP?',
+  'Explain Zenity A2A cryptographic verification',
+  'What does Prisma AIRS cover?',
+  'How is prompt injection defended in v2?',
+];
+
+// ═══════════════════════════════════
+// AUTH
+// ═══════════════════════════════════
+function selectRole(r,el){selectedRole=r;document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected')}
+function doLogin(){
+  const email=document.getElementById('login-email').value||'admin@contoso.com';
+  const name=email.split('@')[0].replace('.',' ');
+  currentUser={name,role:selectedRole,email};
+  const ls=document.getElementById('login-screen');
+  ls.style.opacity='0';ls.style.transition='opacity .4s';
+  setTimeout(()=>{
+    ls.style.display='none';
+    document.getElementById('app').classList.add('visible');
+    const ini=name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('topbar-avatar').textContent=ini;
+    document.getElementById('topbar-name').textContent=name.charAt(0).toUpperCase()+name.slice(1);
+    document.getElementById('topbar-role').textContent=selectedRole.toUpperCase();
+    initApp();
+  },400);
+}
+function doLogout(){document.getElementById('app').classList.remove('visible');const ls=document.getElementById('login-screen');ls.style.opacity='1';ls.style.display='flex'}
+
+// ═══════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════
+function showView(id,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const v=document.getElementById('view-'+id);
+  if(v){v.classList.add('active');v.classList.remove('fadeIn');void v.offsetWidth;v.classList.add('fadeIn')}
+  if(el)el.classList.add('active');
+}
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+function initApp(){
+  renderDashboard();renderAgentic();renderMCP();renderRAG();renderLLM();
+  renderNetwork();renderGaps();renderPartners();renderNative();
+  renderTools('all');renderToolFilters();renderScenarios();
+  renderRedTeam();renderCompliance();renderChecklist();renderAuditLog();
+  initChat();initPipeline();
+}
+
+// ═══════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════
+function renderDashboard(){
+  const lb=document.getElementById('layer-bars-dash');
+  if(lb)lb.innerHTML=LAYERS.map(l=>`<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:var(--text2)">${l.n}: ${l.lbl}</span><span style="color:${l.pct>=95?'var(--accent3)':'var(--warn)'};font-weight:500">${l.pct}%</span></div><div class="progress-bar"><div class="progress-fill ${l.pct>=95?'green':'warn'}" style="width:${l.pct}%"></div></div><div style="font-size:9px;color:var(--text3);margin-top:1px">${l.tools}</div></div>`).join('');
+  const od=document.getElementById('owasp-dash');
+  const ow=[{lbl:'OWASP ASI Top 10',pct:100},{lbl:'OWASP MCP Top 10',pct:100},{lbl:'OWASP LLM Top 10',pct:100},{lbl:'RAG-01 to RAG-06',pct:100},{lbl:'MITRE ATLAS',pct:92}];
+  if(od)od.innerHTML=ow.map(o=>`<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:var(--text2)">${o.lbl}</span><span style="font-weight:500;color:var(--accent)">${o.pct}%</span></div><div class="progress-bar"><div class="progress-fill blue" style="width:${o.pct}%"></div></div></div>`).join('');
+  const nm=document.getElementById('native-mini');
+  if(nm)nm.innerHTML=NATIVE_CONTROLS.slice(0,6).map(n=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">${n.ctrl}</span><span style="color:var(--accent3)">✓</span></div>`).join('')+'<div style="font-size:10px;color:var(--text3);margin-top:6px">+4 more native controls →</div>';
+  const gm=document.getElementById('gap-mini');
+  if(gm)gm.innerHTML=PARTNERS.map(p=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">${p.name}</span><span style="color:var(--info)">Gaps: ${p.gaps.join(',')}</span></div>`).join('');
+  const cm=document.getElementById('comp-mini');
+  if(cm)cm.innerHTML=COMPLIANCE_FW.map(f=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">${f.name}</span><span style="color:${f.pct>=95?'var(--accent3)':'var(--warn)'}">✓ ${f.pct}%</span></div>`).join('');
+}
+
+// ═══════════════════════════════════
+// SECURITY DOMAINS
+// ═══════════════════════════════════
+function renderAgentic(){
+  const el=document.getElementById('asi-table');
+  if(el)el.innerHTML=ASI.map(r=>`<tr><td><span class="tag tag-layer">${r.id}</span></td><td style="color:var(--text);font-weight:500;min-width:150px">${r.name}</td><td style="max-width:160px;font-size:10px">${r.desc}</td><td style="font-size:10px;color:var(--text2)">${r.ctrl}</td><td style="font-size:10px;color:var(--info)">${r.tool}</td><td>${r.gap?'<span class="tag tag-gap">Gap</span>':'<span style="color:var(--text3);font-size:10px">—</span>'}</td><td><span class="tag ${r.status==='ok'?'tag-pass':'tag-med'}">${r.status==='ok'?'✓':'⚠'}</span></td></tr>`).join('');
+}
+function renderMCP(){
+  const el=document.getElementById('mcp-table');
+  if(el)el.innerHTML=MCP.map(r=>`<tr><td><span class="tag tag-layer">${r.id}</span></td><td style="color:var(--text);font-weight:500">${r.name}</td><td style="font-size:10px;color:var(--text2)">${r.ctrl}</td><td style="font-size:10px;color:var(--info)">${r.tool}</td><td style="font-size:10px;color:var(--text3);max-width:140px">${r.test}</td><td><span class="tag tag-pass">✓</span></td></tr>`).join('');
+}
+function renderRAG(){
+  const t=document.getElementById('rag-table');
+  if(t)t.innerHTML=RAG.map(r=>`<tr><td><span class="tag tag-layer">${r.id}</span></td><td style="color:var(--text)">${r.name}</td><td style="font-size:10px;color:var(--info)">${r.tool}</td><td><span class="tag tag-pass">✓</span></td></tr>`).join('');
+  const p=document.getElementById('rag-pipeline');
+  const steps=[
+    {icon:'📄',l:'Document ingestion',d:'Validate + provenance-track BEFORE vector store (RAG-01)'},
+    {icon:'🛡',l:'Prompt Shields scan',d:'Native injection detection on retrieved content (RAG-02)'},
+    {icon:'🔍',l:'Lakera Guard scan ★',d:'Best-in-class RAG injection detection layer (Gap 6)'},
+    {icon:'🔐',l:'Identity filter',d:'Azure AI Search user-scope filter (RAG-04)'},
+    {icon:'🏷',l:'PII / DLP scan',d:'Purview DLP + LLM Guard on output (RAG-03)'},
+    {icon:'📊',l:'Anomaly logging',d:'All retrievals logged with user context (RAG-06)'},
+  ];
+  if(p)p.innerHTML=steps.map((s,i)=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)"><div style="width:26px;height:26px;border-radius:3px;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${s.icon}</div><div><div style="font-size:11px;font-weight:500;color:var(--text)">${i+1}. ${s.l}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">${s.d}</div></div><div style="margin-left:auto"><span class="tag tag-pass">✓</span></div></div>`).join('');
+}
+function renderLLM(){
+  const el=document.getElementById('llm-table');
+  if(el)el.innerHTML=LLM.map(r=>`<tr><td><span class="tag tag-layer">${r.id}</span></td><td style="color:var(--text);font-weight:500">${r.name}</td><td style="font-size:10px;color:var(--text2);max-width:160px">${r.mitigation}</td><td style="font-size:10px;color:var(--text3)">${r.ctrl}</td><td style="font-size:10px;color:var(--info)">${r.tp}</td><td><span class="tag ${r.status==='ok'?'tag-pass':'tag-med'}">${r.status==='ok'?'✓':'⚠'}</span></td></tr>`).join('');
+}
+function renderNetwork(){
+  const ic=[
+    {t:'Entra Agent ID assigned to all agents',ref:'ASI03',ok:true},
+    {t:'Scoped short-lived tokens per task',ref:'ASI03',ok:true},
+    {t:'Zero standing privileges enforced',ref:'Zero Trust',ok:true},
+    {t:'RBAC controlling MCP server access',ref:'MCP05',ok:true},
+    {t:'Key Vault — zero hard-coded secrets',ref:'MCP01',ok:true},
+    {t:'Zenity A2A cryptographic signing (Gap 9)',ref:'ASI07, Gap 9',ok:true},
+    {t:'mTLS between all agents — cert validation',ref:'ASI07',ok:true},
+    {t:'Zenity shadow agent discovery active (Gap 8)',ref:'Gap 8, ASI10',ok:true},
+  ];
+  const nc=[
+    {t:'Private VNet with subnet delegation',ref:'Network',ok:true},
+    {t:'All traffic over private endpoints',ref:'Network',ok:true},
+    {t:'Azure Firewall for egress control',ref:'Network',ok:true},
+    {t:'Public access to Foundry portal blocked',ref:'Network',ok:true},
+    {t:'AI Gateway mandatory MCP entry point',ref:'MCP03',ok:true},
+    {t:'Koi Security MCP supply chain gate (Gap 4)',ref:'MCP07, Gap 4',ok:true},
+    {t:'Network-level block on unapproved MCP servers',ref:'MCP03',ok:true},
+    {t:'Prisma AIRS AI-CSPM posture scan active (Gap 3)',ref:'Gap 3',ok:true},
+  ];
+  const mk=items=>items.map(i=>`<div class="check-item"><div class="check-icon ok">✓</div><div class="check-text">${i.t}</div><div class="check-ref">${i.ref}</div></div>`).join('');
+  const ic2=document.getElementById('identity-checks');const nc2=document.getElementById('network-checks');
+  if(ic2)ic2.innerHTML=mk(ic);if(nc2)nc2.innerHTML=mk(nc);
+}
+
+// ═══════════════════════════════════
+// GAPS
+// ═══════════════════════════════════
+function renderGaps(){
+  const el=document.getElementById('gap-cards');
+  if(el)el.innerHTML=GAPS.map(g=>`<div class="gap-card"><div class="gap-num">${g.n}</div><div class="gap-title">${g.n}. ${g.title}</div><div class="gap-desc">${g.desc}</div><div class="gap-tool">→ Fixed by: <strong>${g.tool}</strong></div></div>`).join('');
+}
+
+// ═══════════════════════════════════
+// PARTNERS
+// ═══════════════════════════════════
+function renderPartners(){
+  const el=document.getElementById('partner-cards');
+  if(el)el.innerHTML=PARTNERS.map(p=>`
+    <div class="partner-card ${p.cls} ${p.official?'official':''}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div class="partner-name">${p.name} ${p.official?'<span class="tag tag-partner" style="font-size:9px;vertical-align:middle">Foundry Partner</span>':''}</div>
+          <div class="partner-sub">${p.sub}</div>
+        </div>
+        <span class="tag ${p.tier==='partner'||p.tier==='paid'?'tag-paid':p.tier==='freemium'?'tag-free':'tag-oss'}">${p.tier==='oss'?'OSS':p.tier==='freemium'?'Free tier':p.tier==='partner'?'Partner':'Paid'}</span>
+      </div>
+      <div class="partner-gaps">${p.gaps.map(g=>`<span class="gap-pill">Gap ${g}</span>`).join('')}</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.6">${p.desc}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════
+// NATIVE CONTROLS
+// ═══════════════════════════════════
+function renderNative(){
+  const el=document.getElementById('native-table');
+  if(el)el.innerHTML=NATIVE_CONTROLS.map(n=>`<tr><td style="color:var(--text);font-weight:500">${n.ctrl}</td><td style="font-size:11px;color:var(--text2)">${n.desc}</td><td style="font-size:10px;color:var(--text3)">${n.risks}</td><td><span class="tag tag-pass">✓ Active</span></td></tr>`).join('');
+}
+
+// ═══════════════════════════════════
+// TOOLS
+// ═══════════════════════════════════
+function renderToolFilters(){
+  const filters=[
+    {k:'all',lbl:`All (${TOOLS_ALL.length})`},{k:'Native',lbl:'Native'},{k:'3rd Party',lbl:'3rd Party'},{k:'OSS',lbl:'OSS / Free'},
+    {k:'L1',lbl:'L1 Identity'},{k:'L2',lbl:'L2 Input'},{k:'L3',lbl:'L3 Privilege'},
+    {k:'L4',lbl:'L4 Memory'},{k:'L5',lbl:'L5 Output'},{k:'L6',lbl:'L6 Oversight'},{k:'L7',lbl:'L7 Monitoring'},
+  ];
+  const fr=document.getElementById('tool-filters');
+  if(fr)fr.innerHTML=filters.map(f=>`<div class="chip ${f.k==='all'?'active':''}" onclick="filterTools('${f.k}',this)">${f.lbl}</div>`).join('');
+}
+function filterTools(f,el){
+  document.querySelectorAll('#tool-filters .chip').forEach(c=>c.classList.remove('active','active-warn'));
+  if(el){el.classList.add('active');if(['3rd Party','OSS'].includes(f))el.classList.add('active-warn')}
+  let t=TOOLS_ALL;
+  if(f!=='all')t=TOOLS_ALL.filter(x=>x.src===f||x.src.includes(f)||x.tier===f||x.layer===f);
+  const el2=document.getElementById('tools-body');
+  if(!el2)return;
+  el2.innerHTML=t.map(tool=>`<tr><td style="color:var(--text);font-weight:500">${tool.name}</td><td><span class="tag ${tool.src==='Native'?'tag-layer':tool.src==='OSS'||tool.src==='OSS+Slides'?'tag-oss':'tag-partner'}">${tool.src}</span></td><td><span class="tag ${tool.tier==='free'?'tag-free':tool.tier==='freemium'?'tag-free':tool.tier==='oss'?'tag-oss':'tag-paid'}">${tool.tier}</span></td><td><span class="tag tag-layer">${tool.layer}</span></td><td style="font-size:10px;color:var(--text2);max-width:160px">${tool.use}</td><td style="font-size:10px;color:${tool.gaps==='—'?'var(--text3)':'var(--info)'};">${tool.gaps}</td><td style="font-size:10px;color:var(--text3);max-width:140px">${tool.test}</td></tr>`).join('');
+}
+function renderTools(f){filterTools(f,null)}
+
+// ═══════════════════════════════════
+// SCENARIOS
+// ═══════════════════════════════════
+function renderScenarios(){
+  const el=document.getElementById('scenario-cards');
+  if(el)el.innerHTML=SCENARIOS.map(s=>`<div class="sc-card" id="${s.id}" onclick="selectScenario('${s.id}',this)"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px"><div class="sc-title">${s.name}${s.new?' <span class="tag tag-new">NEW</span>':''}</div><span class="tag tag-${s.risk==='H'?'high':s.risk==='M'?'med':'low'}">${s.risk==='H'?'HIGH':s.risk==='M'?'MED':'LOW'}</span></div><div class="sc-desc">${s.domain} · ${s.owasp}</div></div>`).join('');
+}
+function selectScenario(id,el){
+  selectedScenario=SCENARIOS.find(s=>s.id===id);
+  document.querySelectorAll('.sc-card').forEach(c=>c.classList.remove('selected'));
+  if(el)el.classList.add('selected');
+  document.getElementById('console-title').textContent=selectedScenario.name;
+  document.getElementById('console-out').innerHTML=`<span class="log-dim">// ${selectedScenario.name} — click Run selected →</span>`;
+}
+async function runSelectedTest(){
+  if(!selectedScenario){alert('Select a scenario first');return}
+  await runScenario(selectedScenario,document.getElementById('console-out'));
+  document.getElementById(selectedScenario.id)?.classList.add('passed');
+}
+async function runAllTests(){
+  const el=document.getElementById('console-out');
+  el.innerHTML='<span class="log-info">▶ Running all 18 scenarios...</span>\n<span class="log-dim">──────────────────────────────────────────────────</span>';
+  document.getElementById('console-title').textContent='Full suite (18 scenarios)';
+  for(const s of SCENARIOS){
+    await new Promise(r=>setTimeout(r,180));
+    el.innerHTML+=`\n<span class="log-cmd">\n▶ ${s.name}${s.new?' [NEW]':''}</span>`;
+    el.scrollTop=el.scrollHeight;
+    for(const step of s.steps){
+      await new Promise(r=>setTimeout(r,60+Math.random()*80));
+      const cls=step.startsWith('✓')?'log-ok':step.includes('BLOCKED')||step.includes('FAIL')?'log-err':step.includes('[!]')||step.includes('WARN')?'log-warn':step.includes('>')?'log-cmd':step.includes('Koi')||step.includes('Lakera')||step.includes('Zenity')||step.includes('Mindgard')||step.includes('Prisma')||step.includes('HiddenLayer')||step.includes('Credo')||step.includes('Garak')?'log-partner':'log-dim';
+      el.innerHTML+=`\n<span class="${cls}">${step}</span>`;
+      el.scrollTop=el.scrollHeight;
+    }
+    document.getElementById(s.id)?.classList.add('passed');
+  }
+  el.innerHTML+=`\n<span class="log-dim">\n──────────────────────────────────────────────────</span>`;
+  el.innerHTML+=`\n<span class="log-ok">✓ All 18 scenarios PASSED — agent is production-ready (all 10 gaps covered)</span>`;
+  el.scrollTop=el.scrollHeight;
+}
+async function runScenario(s,el){
+  el.innerHTML=`<span class="log-cmd">▶ ${s.name}</span>\n<span class="log-dim">──────────────────────────────</span>`;
+  for(const step of s.steps){
+    await new Promise(r=>setTimeout(r,320+Math.random()*280));
+    const cls=step.startsWith('✓')?'log-ok':step.includes('BLOCKED')||step.includes('FAIL')?'log-err':step.includes('[!]')||step.includes('WARN')?'log-warn':step.includes('>')?'log-cmd':step.includes('Koi')||step.includes('Lakera')||step.includes('Zenity')||step.includes('Mindgard')||step.includes('Prisma')||step.includes('HiddenLayer')||step.includes('Credo')||step.includes('Garak')?'log-partner':'log-dim';
+    el.innerHTML+=`\n<span class="${cls}">${step}</span>`;
+    el.scrollTop=el.scrollHeight;
+  }
+}
+function clearConsole(){
+  selectedScenario=null;
+  document.getElementById('console-out').innerHTML='<span class="log-dim">// Console cleared</span>';
+  document.getElementById('console-title').textContent='— no scenario selected —';
+  document.querySelectorAll('.sc-card').forEach(c=>c.classList.remove('selected','passed','failed'));
+}
+
+// ═══════════════════════════════════
+// RED TEAM
+// ═══════════════════════════════════
+function renderRedTeam(){
+  const ps=document.getElementById('pyrit-suites');
+  if(ps)ps.innerHTML=PYRIT_SUITES.map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:11px"><div style="flex:1;color:var(--text2)">${s.name}</div><div style="color:var(--text3);width:50px;text-align:right">${s.passed}/${s.tests}</div><div class="progress-bar" style="width:80px;margin:0"><div class="progress-fill ${s.status==='ok'?'green':'warn'}" style="width:${Math.round(s.passed/s.tests*100)}%"></div></div><span class="tag ${s.status==='ok'?'tag-pass':'tag-med'}">${s.status==='ok'?'PASS':'WARN'}</span></div>`).join('');
+  const at=document.getElementById('atlas-table');
+  if(at)at.innerHTML=ATLAS.map(a=>`<div style="display:grid;grid-template-columns:110px 1fr auto;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;align-items:center"><span class="tag tag-layer" style="font-size:9px">${a.id}</span><div><div style="color:var(--text);font-size:10px;font-weight:500">${a.name}</div><div style="color:var(--text3);font-size:9px;margin-top:1px">${a.ctrl}</div></div><span class="tag tag-pass">✓</span></div>`).join('');
+}
+async function runPyRIT(){
+  const el=document.getElementById('pyrit-console');
+  const steps=[
+    ['log-info','▶ PyRIT + Garak + Mindgard evaluation suite initialising...'],
+    ['log-dim','> Loading MITRE ATLAS test cases: 168 total'],
+    ['log-dim','> Connecting to agent: securebot-002 | Entra ID: OK'],
+    ['log-cmd','\n[PyRIT 1/4] Jailbreak suite (47 tests)'],
+    ['log-ok','  ✓ DAN variants: 12/12 BLOCKED | Role-play: 18/18 | Context: 17/17'],
+    ['log-ok','  SUITE: 47/47 PASSED'],
+    ['log-cmd','\n[PyRIT 2/4] Prompt injection (38 tests)'],
+    ['log-ok','  ✓ Direct: 19/19 | Indirect via docs: 14/14 | Override: 5/5'],
+    ['log-ok','  SUITE: 38/38 PASSED'],
+    ['log-cmd','\n[PyRIT 3/4] Data exfiltration (29 tests)'],
+    ['log-ok','  ✓ PII extraction: 22/22 BLOCKED | Credential probes: 7/7'],
+    ['log-cmd','\n[PyRIT 4/4] Supply chain attacks (18 tests)'],
+    ['log-warn','  ⚠ 17/18 PASSED — 1 gap: package pinning edge case → REMEDIATION NEEDED'],
+    ['log-cmd','\n[Garak] 130+ LLM vulnerability probes'],
+    ['log-partner','  > Garak: encoding attack probes (base64, rot13, homoglyphs)...'],
+    ['log-ok','  ✓ 130/130 probes BLOCKED by Prompt Shields + Guardrails'],
+    ['log-warn','  ⚠ Hallucination probes: 42/44 — 2 edge cases in grounding → review'],
+    ['log-cmd','\n[Mindgard] Continuous production red team (live agent)'],
+    ['log-partner','  > Mindgard: multi-agent attack chain simulation...'],
+    ['log-ok','  ✓ Model extraction: 19/19 BLOCKED'],
+    ['log-ok','  ✓ Cascade attack: 14/14 BLOCKED'],
+    ['log-dim','\n──────────────────────────────────────────────────'],
+    ['log-ok','✓ Combined: 374/377 PASSED (99.2%)'],
+    ['log-warn','⚠ 2 remediations: package pinning + hallucination grounding'],
+    ['log-warn','⚠ CI/CD gate: CONDITIONAL PASS — fix before release'],
+  ];
+  el.innerHTML='';
+  for(const [cls,msg] of steps){
+    await new Promise(r=>setTimeout(r,140+Math.random()*180));
+    el.innerHTML+=`<span class="${cls}">${msg}</span>\n`;
+    el.scrollTop=el.scrollHeight;
+  }
+}
+async function runGarak(){
+  const el=document.getElementById('pyrit-console');
+  const steps=[
+    ['log-partner','▶ Garak LLM vulnerability scanner initialising (130+ probes)...'],
+    ['log-dim','> Loading probe modules: injection, jailbreak, encoding, hallucination, PII'],
+    ['log-dim','> Target: securebot-002 | Model: GPT-4o'],
+    ['log-cmd','\n[Module 1] Injection probes (40 probes)'],
+    ['log-ok','  ✓ 40/40 BLOCKED — Prompt Shields effective'],
+    ['log-cmd','\n[Module 2] Jailbreak probes (30 probes)'],
+    ['log-ok','  ✓ 30/30 BLOCKED — Guardrails effective'],
+    ['log-cmd','\n[Module 3] Encoding obfuscation (30 probes)'],
+    ['log-ok','  ✓ Base64 variants: 10/10 | rot13: 10/10 | Unicode homoglyphs: 10/10'],
+    ['log-cmd','\n[Module 4] Hallucination / grounding (14 probes)'],
+    ['log-warn','  ⚠ 12/14 PASSED — 2 grounding edge cases detected → review groundedness eval'],
+    ['log-cmd','\n[Module 5] PII extraction (16 probes)'],
+    ['log-ok','  ✓ 16/16 BLOCKED — LLM Guard + Purview DLP effective'],
+    ['log-dim','\n──────────────────────────────────────────────────'],
+    ['log-ok','✓ Garak: 128/130 probes PASSED'],
+    ['log-warn','⚠ 2 hallucination edge cases → groundedness check tuning recommended'],
+  ];
+  el.innerHTML='';
+  for(const [cls,msg] of steps){
+    await new Promise(r=>setTimeout(r,130+Math.random()*160));
+    el.innerHTML+=`<span class="${cls}">${msg}</span>\n`;
+    el.scrollTop=el.scrollHeight;
+  }
+}
+
+// ═══════════════════════════════════
+// COMPLIANCE
+// ═══════════════════════════════════
+function renderCompliance(){
+  const cb=document.getElementById('compliance-bars');
+  if(cb)cb.innerHTML=COMPLIANCE_FW.map(f=>`<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:var(--text2);font-weight:500">${f.name}</span><span style="color:${f.pct>=95?'var(--accent3)':'var(--warn)'};font-weight:500">${f.pct}%</span></div><div class="progress-bar"><div class="progress-fill ${f.pct>=95?'green':'warn'}" style="width:${f.pct}%"></div></div><div style="font-size:9px;color:var(--text3);margin-top:1px">${f.detail}</div></div>`).join('');
+  const cd=document.getElementById('compliance-detail');
+  const details=[
+    {fw:'NIST AI RMF',items:['Govern → agent charters','Map → threat models (ASI+MCP+LLM Top 10)','Measure → continuous eval + Mindgard','Manage → incident response playbooks']},
+    {fw:'EU AI Act',items:['HITL gates → L6 mandatory','Transparency → RAI Dashboard + explainability','Risk mgmt → 7-layer blueprint','Evidence → Credo AI / Saidot (Gap 7)']},
+    {fw:'MITRE ATLAS',items:['AML.T0051 = LLM injection (PyRIT)','AML.T0020 = training poisoning (HiddenLayer)','AML.T0015 = model evasion (Garak)','Production testing via Mindgard']},
+  ];
+  if(cd)cd.innerHTML=details.map(d=>`<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:5px">${d.fw}</div>${d.items.map(i=>`<div style="font-size:10px;color:var(--text2);padding:2px 0;border-bottom:1px solid var(--border)">· ${i}</div>`).join('')}</div>`).join('');
+}
+
+// ═══════════════════════════════════
+// CHECKLIST
+// ═══════════════════════════════════
+function renderChecklist(){
+  const el=document.getElementById('checklist-render');
+  if(!el)return;
+  el.innerHTML=`<div class="grid2">${CHECKLIST.map(phase=>`<div class="card"><div class="card-title" style="margin-bottom:12px;color:var(--info)">${phase.phase} phase</div>${phase.items.map(i=>`<div class="check-item"><div class="check-icon ok">✓</div><div class="check-text">${i.t}</div><div class="check-ref">${i.ref}</div></div>`).join('')}</div>`).join('')}</div>`;
+}
+
+// ═══════════════════════════════════
+// AUDIT LOG
+// ═══════════════════════════════════
+function renderAuditLog(){
+  const el=document.getElementById('audit-log');
+  if(!el)return;
+  const typeColor={'KOISEC':'tag-new','LAKERA':'tag-new','ZENITY':'tag-new','MINDGARD':'tag-new','PRISMA':'tag-new','HLAYER':'tag-new','CREDOAI':'tag-new','GARAK':'tag-new','INJECTION':'tag-high','MCP_REG':'tag-high','SUPPLY':'tag-high','PII':'tag-med','CIRCUIT':'tag-med'};
+  el.innerHTML=AUDIT_EVENTS.map(e=>`<div class="audit-row"><div class="audit-time">${e.time}</div><div class="audit-type"><span class="tag ${typeColor[e.type]||'tag-layer'}" style="font-size:8px">${e.type}</span></div><div class="audit-msg">${e.msg}</div><div class="audit-status"><span class="tag ${e.status==='OK'?'tag-pass':e.status==='BLOCKED'?'tag-high':'tag-med'}" style="font-size:8px">${e.status}</span></div></div>`).join('');
+}
+function refreshAudit(){const el=document.getElementById('audit-log');if(el){el.style.opacity='.3';setTimeout(()=>{renderAuditLog();el.style.opacity='1';el.style.transition='opacity .3s'},400)}}
+
+// ═══════════════════════════════════
+// CHAT
+// ═══════════════════════════════════
+function initChat(){
+  const msgs=document.getElementById('chat-messages');
+  if(!msgs)return;
+  msgs.innerHTML=`<div class="chat-msg fadeIn"><div class="chat-avatar agent">SB</div><div><div class="chat-bubble agent">Hello. I am <strong>SecureBot v2</strong> — updated with all tools and scenarios from the Azure AI Foundry Security Blueprint slides.<br><br>This version includes all <strong>10 critical gap analyses</strong> and all <strong>8 third-party tools</strong>: Palo Alto Prisma AIRS, Zenity, Lakera Guard, Mindgard, Koi Security, HiddenLayer, Credo AI/Saidot, and Garak.<br><br>All inputs are screened by Prompt Shields <em>and</em> Lakera Guard. Ask me anything about the gaps, third-party tools, or security controls.</div><div class="chat-meta">SecureBot v2 · Entra: agent-sb-002 · 3 shields active · 14:35:12</div></div></div>`;
+  const qp=document.getElementById('quick-prompts');
+  if(qp)qp.innerHTML=QUICK_PROMPTS.map(p=>`<button class="btn btn-outline btn-sm" style="text-align:left;white-space:normal;height:auto;padding:7px 10px;font-size:10px;line-height:1.4" onclick="sendQuickPrompt('${p.replace(/'/g,"\\'")}')")>→ ${p}</button>`).join('');
+}
+function initPipeline(){
+  const el=document.getElementById('pipeline-steps');
+  if(!el)return;
+  const steps=[
+    {l:'User input received',s:'Raw message accepted',c:'var(--accent)'},
+    {l:'Prompt Shields scan',s:'Native injection detection',c:'var(--danger)'},
+    {l:'Lakera Guard scan ★',s:'RAG + custom policy check',c:'var(--info)'},
+    {l:'Guardrails evaluation',s:'Risk category assessment',c:'var(--warn)'},
+    {l:'Entra ID token check',s:'Agent identity verified',c:'var(--accent2)'},
+    {l:'Model processing',s:'GPT-4o with context limits',c:'var(--accent)'},
+    {l:'LLM Guard output scan',s:'PII + toxicity redaction',c:'var(--danger)'},
+    {l:'Audit log entry',s:'Immutable record created',c:'var(--accent3)'},
+  ];
+  el.innerHTML=steps.map((s,i)=>`<div style="display:flex;align-items:center;gap:9px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px" id="pipe-${i}"><div style="width:6px;height:6px;border-radius:50%;background:${s.c};flex-shrink:0"></div><div><div style="color:var(--text)">${s.l}</div><div style="font-size:9px;color:var(--text3)">${s.s}</div></div><div style="margin-left:auto;font-size:10px;color:var(--accent3)">✓</div></div>`).join('');
+}
+async function sendChat(){
+  const input=document.getElementById('chat-input');
+  const q=input.value.trim();if(!q)return;
+  input.value='';appendUserMsg(q);await agentReply(q);
+}
+async function sendQuickPrompt(q){document.getElementById('chat-input').value='';appendUserMsg(q);await agentReply(q)}
+function appendUserMsg(q){
+  const msgs=document.getElementById('chat-messages');
+  const ini=(currentUser?.name||'U').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const div=document.createElement('div');
+  div.className='chat-msg fadeIn';div.style.flexDirection='row-reverse';
+  div.innerHTML=`<div class="chat-avatar user">${ini}</div><div><div class="chat-bubble user">${q}</div><div class="chat-meta" style="text-align:right">${currentUser?.name||'User'} · ${new Date().toLocaleTimeString()}</div></div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+async function agentReply(q){
+  const msgs=document.getElementById('chat-messages');
+  const typing=document.createElement('div');
+  typing.className='chat-msg';typing.id='typing-indicator';
+  typing.innerHTML=`<div class="chat-avatar agent">SB</div><div class="chat-bubble agent typing"><span>●</span><span>●</span><span>●</span></div>`;
+  msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
+  animatePipeline();
+  await new Promise(r=>setTimeout(r,1800));
+  typing.remove();
+  const q2=q.toLowerCase();
+  const match=AGENT_ANSWERS.find(a=>q2.includes(a.k));
+  const answer=match?match.a:generateAnswer(q2);
+  const div=document.createElement('div');
+  div.className='chat-msg fadeIn';
+  div.innerHTML=`<div class="chat-avatar agent">SB</div><div><div class="chat-bubble agent">${answer}</div><div class="chat-meta">SecureBot v2 · Prompt Shields ✓ · Lakera Guard ✓ · ${new Date().toLocaleTimeString()}</div></div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function generateAnswer(q){
+  if(q.includes('hidden'))return '<strong>HiddenLayer</strong> fills gap 2 (AI model weight scanning).<br><br>Azure Foundry does not scan model weights for embedded malware, backdoors, or adversarial patches. HiddenLayer\'s MLDR (Model Detection & Response) product scans every model before deployment — checking 3B+ parameters for anomalies. It\'s the only tool in the stack that covers gap 2.';
+  if(q.includes('credo')||q.includes('saidot'))return '<strong>Credo AI / Saidot</strong> fills gap 7 (AI governance & regulatory evidence).<br><br>Foundry\'s Purview provides templates only. Credo AI and Saidot are official Foundry governance collaborators providing: EU AI Act conformity assessment, NIST AI RMF evidence generation, and automated DPIA creation. Essential for regulated industries.';
+  if(q.includes('mindgard'))return '<strong>Mindgard</strong> fills gap 5 (continuous red teaming in production).<br><br>PyRIT runs pre-deployment only. Mindgard tests the LIVE agent continuously — not just before release. It runs multi-agent attack chains and model extraction attempts against the production environment and alerts on behavioural drift.';
+  if(q.includes('layer'))return 'All <strong>7 mandatory security layers</strong> are active in v2:<br><br>L1: Identity & Zero Trust (now includes Zenity A2A)<br>L2: Input Validation (now includes Lakera Guard)<br>L3: Least Privilege (now includes Koi Security)<br>L4: Memory & Context Integrity<br>L5: Output Controls<br>L6: Human Oversight (now includes Credo AI)<br>L7: Observability (now includes Prisma AIRS, Mindgard, Garak)';
+  if(q.includes('compliance')||q.includes('nist')||q.includes('eu'))return 'v2 compliance coverage:<br><br>• <strong>NIST AI RMF</strong>: 100% — all 4 functions<br>• <strong>EU AI Act</strong>: 97% — Credo AI conformity assessment + DPIA<br>• <strong>MITRE ATLAS</strong>: 92% — PyRIT + Garak + Mindgard<br>• <strong>ISO 27001</strong>: 100%<br>• <strong>SOC 2 Type II</strong>: 100%<br>• <strong>Zero Trust</strong>: 100% — including Zenity A2A signing';
+  return 'I can answer questions about all v2 additions: <strong>10 critical gaps</strong>, <strong>8 third-party tools</strong> (Prisma AIRS, Zenity, Lakera Guard, Mindgard, Koi Security, HiddenLayer, Credo AI/Saidot, Garak), or any of the original security controls. Try asking about a specific tool or gap number.';
+}
+async function animatePipeline(){
+  for(let i=0;i<8;i++){
+    await new Promise(r=>setTimeout(r,200));
+    const el=document.getElementById(`pipe-${i}`);
+    if(el){el.style.background='rgba(79,124,255,.08)';setTimeout(()=>{if(el)el.style.background=''},380)}
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none')doLogin();
+});
+</script>
+</body>
+</html>

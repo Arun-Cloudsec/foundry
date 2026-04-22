@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Interactive security command centre for Azure AI Foundry — 7 mandatory layers, 10 critical gap analyses, and 8 third-party integrations.">
+<meta property="og:title" content="Azure AI Foundry — Security Command Centre">
+<meta property="og:description" content="Interactive blueprint: 7 security layers, 10 gaps, 8 third-party tools covering OWASP ASI, MCP, LLM, and RAG.">
+<meta property="og:type" content="website">
 <title>Azure AI Foundry — Security Command Centre v2</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -20,18 +24,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px)}
 
 /* LOGIN */
-#login-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+#login-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-start;justify-content:center;background:var(--bg);overflow-y:auto;padding:24px 16px}
 .login-bg{position:absolute;inset:0;overflow:hidden}
 .login-bg::before{content:'';position:absolute;inset:-50%;background:radial-gradient(ellipse at 30% 40%,rgba(79,124,255,0.09) 0%,transparent 50%),radial-gradient(ellipse at 70% 60%,rgba(124,58,237,0.07) 0%,transparent 50%);animation:bgpulse 8s ease-in-out infinite alternate}
 @keyframes bgpulse{from{opacity:.5;transform:scale(1)}to{opacity:1;transform:scale(1.05)}}
 .grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(79,124,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,0.04) 1px,transparent 1px);background-size:40px 40px}
-.login-card{position:relative;z-index:2;width:440px;padding:48px 40px;background:var(--surface);border:1px solid var(--border2);border-radius:4px;box-shadow:var(--glow),0 40px 80px rgba(0,0,0,0.5)}
-.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.login-card{position:relative;z-index:2;width:440px;max-width:100%;padding:32px 36px;margin:auto;background:var(--surface);border:1px solid var(--border2);border-radius:4px;box-shadow:var(--glow),0 40px 80px rgba(0,0,0,0.5)}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:22px}
 .login-logo .icon{width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px}
 .login-logo .brand{font-family:var(--sans);font-weight:700;font-size:15px;color:var(--text);letter-spacing:.02em}
 .login-logo .sub{font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.08em}
-.login-title{font-family:var(--sans);font-size:24px;font-weight:700;margin-bottom:6px}
-.login-sub{font-size:12px;color:var(--text2);margin-bottom:28px;letter-spacing:.03em}
+.login-title{font-family:var(--sans);font-size:22px;font-weight:700;margin-bottom:6px}
+.login-sub{font-size:12px;color:var(--text2);margin-bottom:18px;letter-spacing:.03em}
 .field-group{margin-bottom:14px}
 .field-label{font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px;display:block}
 .field-input{width:100%;padding:11px 16px;background:var(--bg2);border:1px solid var(--border2);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s}
@@ -101,13 +105,6 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
 
 /* STAT CARDS */
 .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.stat-card.green::before{background:linear-gradient(90deg,var(--accent3),#00b4d8)}
-.stat-card.red::before{background:linear-gradient(90deg,var(--danger),#ff6b81)}
-.stat-card.warn::before{background:linear-gradient(90deg,var(--warn),#ffd32a)}
-.stat-card.info::before{background:linear-gradient(90deg,var(--info),#48cae4)}
-.stat-num{font-family:var(--sans);font-size:26px;font-weight:700;color:var(--text);line-height:1}
 .stat-lbl{font-size:10px;color:var(--text3);margin-top:5px;letter-spacing:.03em}
 .stat-delta{font-size:10px;margin-top:3px}
 .stat-delta.up{color:var(--accent3)}.stat-delta.dn{color:var(--danger)}
@@ -139,12 +136,68 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
 .data-table tr:hover td{background:var(--surface2);color:var(--text)}
 
 /* PROGRESS */
-.progress-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin:5px 0}
-.progress-fill{height:100%;border-radius:2px;transition:width 1s ease}
+.progress-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin:5px 0;position:relative}
+.progress-fill{height:100%;border-radius:2px;transition:width 1.4s cubic-bezier(.22,1,.36,1)}
 .progress-fill.blue{background:linear-gradient(90deg,var(--accent),var(--accent2))}
 .progress-fill.green{background:linear-gradient(90deg,var(--accent3),#00b4d8)}
 .progress-fill.warn{background:var(--warn)}.progress-fill.red{background:var(--danger)}
 .progress-fill.info{background:var(--info)}
+
+/* ═══════ SIGNATURE ANIMATIONS ═══════ */
+
+/* 1. Boot overlay — full-screen scan sequence after login */
+#boot-overlay{position:fixed;inset:0;z-index:900;background:radial-gradient(ellipse at center,rgba(8,16,36,0.98) 0%,rgba(5,8,16,1) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .6s ease}
+#boot-overlay.active{opacity:1;pointer-events:auto}
+.boot-shield{position:relative;width:120px;height:120px;margin-bottom:32px}
+.boot-shield svg{width:100%;height:100%;filter:drop-shadow(0 0 20px rgba(79,124,255,.5))}
+.boot-ring{position:absolute;inset:-12px;border:1px solid rgba(79,124,255,.3);border-radius:50%;border-top-color:var(--accent);animation:bootSpin 1.2s linear infinite}
+.boot-ring2{position:absolute;inset:-24px;border:1px solid rgba(124,58,237,.2);border-radius:50%;border-right-color:var(--accent2);animation:bootSpin 1.8s linear infinite reverse}
+@keyframes bootSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.boot-title{font-family:var(--sans);font-size:18px;font-weight:700;color:var(--text);letter-spacing:.02em;margin-bottom:6px}
+.boot-sub{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:.08em;margin-bottom:28px}
+.boot-log{width:460px;max-width:90vw;font-family:var(--mono);font-size:11px;line-height:2;color:var(--text2);min-height:170px}
+.boot-log-line{opacity:0;transform:translateX(-8px);animation:bootLine .35s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes bootLine{to{opacity:1;transform:translateX(0)}}
+.boot-log-line .ok{color:var(--accent3)}
+.boot-log-line .scan{color:var(--accent)}
+.boot-log-line .warn{color:var(--warn)}
+.boot-cursor{display:inline-block;width:8px;height:12px;background:var(--accent3);vertical-align:middle;margin-left:2px;animation:bootBlink 1s steps(2) infinite}
+@keyframes bootBlink{50%{opacity:0}}
+
+/* 2. Scan-line sweep across page-header on dashboard load */
+.scan-sweep{position:relative;overflow:hidden}
+.scan-sweep::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(79,124,255,.18),transparent);animation:scanSweep 3.5s ease-in-out 1;pointer-events:none}
+@keyframes scanSweep{to{left:160%}}
+
+/* 3. Animated count-up style (number grows) */
+.stat-num{font-family:var(--sans);font-size:26px;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;position:relative;overflow:hidden;opacity:0;transform:translateY(12px);animation:statRise .55s cubic-bezier(.22,1,.36,1) forwards}
+.stat-card:nth-child(1){animation-delay:.1s}
+.stat-card:nth-child(2){animation-delay:.2s}
+.stat-card:nth-child(3){animation-delay:.3s}
+.stat-card:nth-child(4){animation-delay:.4s}
+.stat-card:nth-child(5){animation-delay:.5s}
+@keyframes statRise{to{opacity:1;transform:translateY(0)}}
+
+/* 4. Staggered bar fill on dashboard */
+.layer-bar-row{opacity:0;transform:translateX(-6px);animation:rowIn .5s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes rowIn{to{opacity:1;transform:translateX(0)}}
+
+/* 5. Live telemetry pulse on topbar shield */
+@keyframes shieldPulse{0%,100%{box-shadow:0 0 0 0 rgba(6,214,160,.5)}50%{box-shadow:0 0 0 5px rgba(6,214,160,0)}}
+.shield-pulse{animation:shieldPulse 2.5s ease-in-out infinite}
+
+/* 6. Gentle hover lift on stat cards */
+.stat-card{transition:transform .25s cubic-bezier(.34,1.4,.64,1),border-color .25s,box-shadow .25s}
+.stat-card:hover{transform:translateY(-3px);border-color:var(--border2);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+
+/* 7. Gradient shimmer on stat-card top bars */
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));background-size:200% 100%;animation:barShimmer 3s linear infinite}
+.stat-card.green::before{background:linear-gradient(90deg,var(--accent3),#00b4d8,var(--accent3));background-size:200% 100%;animation:barShimmer 3s linear infinite}
+.stat-card.red::before{background:linear-gradient(90deg,var(--danger),#ff6b81,var(--danger));background-size:200% 100%;animation:barShimmer 3s linear infinite}
+.stat-card.warn::before{background:linear-gradient(90deg,var(--warn),#ffd32a,var(--warn));background-size:200% 100%;animation:barShimmer 3s linear infinite}
+.stat-card.info::before{background:linear-gradient(90deg,var(--info),#48cae4,var(--info));background-size:200% 100%;animation:barShimmer 3s linear infinite}
+@keyframes barShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 
 /* BUTTONS */
 .btn{font-family:var(--mono);font-size:11px;padding:7px 14px;border-radius:3px;cursor:pointer;border:none;transition:all .2s;letter-spacing:.03em}
@@ -270,6 +323,15 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
     </div>
     <div class="login-title">Authenticate access</div>
     <div class="login-sub">Now includes 10 critical gap analyses, 8 third-party tools & 18 test scenarios</div>
+    <div style="background:rgba(79,124,255,0.06);border:1px solid rgba(79,124,255,0.22);border-left:3px solid var(--accent);border-radius:3px;padding:12px 14px;margin-bottom:22px;">
+      <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px;font-family:var(--mono);">Demo · Reference blueprint</div>
+      <div style="font-size:11.5px;color:var(--text);line-height:1.65;margin-bottom:8px;">
+        Interactive blueprint mapping how Azure AI Foundry's native controls, known gaps, and third-party integrations fit together. Data is based on published Microsoft documentation, OWASP frameworks, and real 2025 incidents. Percentages reflect the <em>maturity of each layer in a reference deployment</em> — not a live scan of anyone's tenant.
+      </div>
+      <div style="font-size:10px;color:var(--text3);line-height:1.55;font-style:italic;">
+        Independent reference model. Not affiliated with or endorsed by Microsoft.
+      </div>
+    </div>
     <div class="field-group">
       <label class="field-label">Email address</label>
       <input class="field-input" id="login-email" type="email" value="admin@contoso.com">
@@ -292,11 +354,28 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
   </div>
 </div>
 
+<!-- ════ BOOT OVERLAY (post-login scan) ════ -->
+<div id="boot-overlay">
+  <div class="boot-shield">
+    <div class="boot-ring"></div>
+    <div class="boot-ring2"></div>
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L3 7v5c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V7L12 2z" fill="url(#bootG)" opacity=".95"/>
+      <path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <defs><linearGradient id="bootG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f7cff"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
+    </svg>
+  </div>
+  <div class="boot-title">Initialising Security Command Centre</div>
+  <div class="boot-sub">RUNNING PRE-FLIGHT CHECKS · BOOT SEQUENCE v2.0</div>
+  <div class="boot-log" id="boot-log"></div>
+</div>
+
 <!-- ════ APP ════ -->
 <div id="app">
   <div class="topbar">
     <div class="topbar-logo"><span>🛡</span> AI Foundry SCC <span class="v2-badge">v2</span><div class="dot"></div></div>
     <div class="topbar-title" id="topbar-context">AZURE AI FOUNDRY — SECURITY COMMAND CENTRE v2</div>
+    <div title="This is an independent reference blueprint. Static demo data — not connected to any tenant. Not affiliated with or endorsed by Microsoft." style="font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;color:var(--warn);background:rgba(255,165,2,.1);border:1px solid rgba(255,165,2,.3);padding:3px 9px;border-radius:3px;cursor:help;">DEMO · REFERENCE</div>
     <div class="topbar-user">
       <div id="topbar-avatar" class="topbar-avatar">AD</div>
       <div><div style="font-size:12px;color:var(--text)" id="topbar-name">Admin Demo</div><div class="topbar-role" id="topbar-role">ADMIN</div></div>
@@ -346,9 +425,21 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;b
       <!-- ── DASHBOARD ── -->
       <div id="view-dashboard" class="view active fadeIn">
         <div class="breadcrumb">SCC v2 / <span>Dashboard</span></div>
-        <div class="page-header">
+        <div class="page-header scan-sweep">
           <h1>Security Command Centre <span class="v2-badge" style="font-size:12px">v2</span></h1>
           <p>Azure AI Foundry Security Blueprint — 7 layers · 36 tools · 10 gap analyses · 8 third-party integrations · 18 test scenarios</p>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(79,124,255,0.05),rgba(124,58,237,0.05));border:1px solid rgba(79,124,255,0.2);border-left:3px solid var(--accent);border-radius:4px;padding:12px 16px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start;">
+          <div style="flex-shrink:0;width:28px;height:28px;border-radius:4px;background:rgba(79,124,255,0.12);display:flex;align-items:center;justify-content:center;font-size:14px;">ℹ️</div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;font-family:var(--mono);">About this blueprint</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.65;">
+              This is an <strong>interactive reference blueprint</strong> that maps how Azure AI Foundry's native controls, known gaps, and third-party integrations fit together. The data is based on published Microsoft documentation, OWASP frameworks, and real 2025 incidents. The percentages reflect the maturity of each layer in a reference deployment — not a live scan of anyone's tenant.
+            </div>
+            <div style="font-size:10.5px;color:var(--text3);margin-top:6px;font-style:italic;">
+              Independent reference model. Not affiliated with or endorsed by Microsoft. Based on public documentation.
+            </div>
+          </div>
         </div>
         <div class="stats-row">
           <div class="stat-card green"><div class="stat-num">7/7</div><div class="stat-lbl">Security layers</div><div class="stat-delta up">▲ All mandatory</div></div>
@@ -592,7 +683,7 @@ const LLM=[
 ];
 
 const GAPS=[
-  {n:1,title:'Deep runtime threat detection',desc:'Defender for AI (preview Feb 2026) still maturing — novel attacks & intent drift undetected.',tool:'Palo Alto Prisma AIRS'},
+  {n:1,title:'Deep runtime threat detection',desc:'Defender for Cloud AI threat protection still maturing — novel attacks & intent drift undetected.',tool:'Palo Alto Prisma AIRS'},
   {n:2,title:'AI model scanning (weight-level)',desc:'No scanning of model weights for malware, backdoors, deserialization attacks.',tool:'HiddenLayer MLDR'},
   {n:3,title:'AI Security Posture Management',desc:'No continuous AI-CSPM — misconfigs in agent instructions, tool permissions, memory go undetected.',tool:'Palo Alto Prisma AIRS'},
   {n:4,title:'MCP supply chain scanning',desc:'AI Gateway routes but does not scan for malicious MCP behaviour or scope creep.',tool:'Koi Security'},
@@ -777,8 +868,8 @@ const AGENT_ANSWERS=[
   {k:'gap',a:'<strong>10 critical gaps in Azure AI Foundry native controls (from the blueprint slides):</strong><br><br>1. Deep runtime threat detection → Prisma AIRS<br>2. AI model weight scanning → HiddenLayer MLDR<br>3. AI-CSPM posture management → Prisma AIRS<br>4. MCP supply chain scanning → Koi Security<br>5. Continuous production red teaming → Mindgard<br>6. RAG KB poisoning detection → Lakera Guard<br>7. Regulatory evidence automation → Credo AI / Saidot<br>8. Shadow agent discovery → Zenity<br>9. A2A cryptographic verification → Zenity<br>10. Custom output policy engine → Lakera Guard<br><br>All 10 gaps now covered by the 8 third-party tools in v2.'},
   {k:'lakera',a:'<strong>Lakera Guard</strong> fills gaps 4, 6, and 10:<br><br>• <strong>Gap 6</strong>: Best-in-class indirect injection detection for RAG pipelines — scans retrieved content BEFORE it enters agent context<br>• <strong>Gap 10</strong>: Custom business output policy engine — e.g. "no investment advice without FCA disclaimer" — beyond standard harm categories<br>• <strong>Gap 4 (partial)</strong>: Input validation for MCP parameters<br><br>Free tier available. Real-time API. Integrates natively with Azure AI Foundry.'},
   {k:'koi',a:'<strong>Koi Security</strong> fills gap 4 (MCP supply chain scanning):<br><br>Azure AI Gateway routes MCP calls but does NOT scan for malicious server behaviour, scope creep, or typosquatting. Koi Security adds:<br>• MCP supply chain gateway with active scanning<br>• Detection of typosquatted MCP packages (e.g. mcp-postmark-client vs mcp-postmarkapp)<br>• Rug pull detection<br>• Cited by OWASP ASI Top 10 for ASI04 mitigation'},
-  {k:'zenity',a:'<strong>Zenity</strong> fills gaps 1, 3, 8, and 9 — official Foundry partner (Ignite 2025):<br><br>• <strong>Gap 8</strong>: Shadow agent discovery — detects LangGraph, CrewAI, custom agents not registered in Foundry<br>• <strong>Gap 9</strong>: A2A cryptographic message signing — what Azure mTLS alone doesn\'t cover<br>• <strong>Gap 1</strong>: Multi-step attack detection beyond Defender for AI<br>• <strong>Gap 3</strong>: AI lifecycle security posture<br><br>Gartner AI TRiSM recognised. Encoded payload blocking built in.'},
-  {k:'prisma',a:'<strong>Palo Alto Prisma AIRS</strong> fills gaps 1, 2, 3, and 5 — official Foundry partner (Ignite 2025):<br><br>• <strong>Gap 1</strong>: Deep runtime threat detection beyond Defender for AI preview<br>• <strong>Gap 2</strong>: AI model weight scanning for malware/backdoors<br>• <strong>Gap 3</strong>: Continuous AI-CSPM — agent instructions, tool permissions, memory<br>• <strong>Gap 5</strong>: Continuous production red teaming (alongside Mindgard)<br><br>5 pillars: Runtime firewall, posture mgmt, model scanning, red team, agent security.'},
+  {k:'zenity',a:'<strong>Zenity</strong> fills gaps 1, 3, 8, and 9 — official Foundry partner (Ignite 2025):<br><br>• <strong>Gap 8</strong>: Shadow agent discovery — detects LangGraph, CrewAI, custom agents not registered in Foundry<br>• <strong>Gap 9</strong>: A2A cryptographic message signing — what Azure mTLS alone doesn\'t cover<br>• <strong>Gap 1</strong>: Multi-step attack detection beyond Defender for Cloud AI threat protection<br>• <strong>Gap 3</strong>: AI lifecycle security posture<br><br>Gartner AI TRiSM recognised. Encoded payload blocking built in.'},
+  {k:'prisma',a:'<strong>Palo Alto Prisma AIRS</strong> fills gaps 1, 2, 3, and 5 — official Foundry partner (Ignite 2025):<br><br>• <strong>Gap 1</strong>: Deep runtime threat detection beyond Defender for Cloud AI threat protection<br>• <strong>Gap 2</strong>: AI model weight scanning for malware/backdoors<br>• <strong>Gap 3</strong>: Continuous AI-CSPM — agent instructions, tool permissions, memory<br>• <strong>Gap 5</strong>: Continuous production red teaming (alongside Mindgard)<br><br>5 pillars: Runtime firewall, posture mgmt, model scanning, red team, agent security.'},
   {k:'injection',a:'<strong>Prompt injection defence has 4 layers in v2:</strong><br><br>1. <strong>Prompt Shields</strong> (native) — scans all inputs including document content<br>2. <strong>Lakera Guard</strong> (3rd party) — secondary scan, especially for RAG-retrieved content<br>3. <strong>Foundry Guardrails</strong> (native) — risk category evaluation and intervention actions<br>4. <strong>Rebuff (OSS)</strong> — heuristic + LLM-based additional detection<br><br>All 4 layers are active on this agent. OWASP ASI01 + LLM01 coverage: ✓'},
   {k:'mcp',a:'<strong>MCP security (OWASP MCP Top 10) — v2 with Koi Security:</strong><br><br>All 10 controls active. Key v2 additions:<br>• <strong>MCP04</strong>: Koi Security scans all MCP inputs for malicious patterns<br>• <strong>MCP07</strong>: Koi Security supply chain gateway — typosquat + rug pull detection<br>• <strong>MCP08-10</strong>: Zenity monitors cross-agent channels and binding validation<br><br>All MCP calls must route through AI Gateway. Central registry mandatory. No unapproved servers.'},
 ];
@@ -804,13 +895,97 @@ function doLogin(){
   ls.style.opacity='0';ls.style.transition='opacity .4s';
   setTimeout(()=>{
     ls.style.display='none';
+    runBootSequence(name);
+  },400);
+}
+
+// ═══════════════════════════════════
+// BOOT SEQUENCE (signature animation)
+// ═══════════════════════════════════
+function runBootSequence(name){
+  const overlay=document.getElementById('boot-overlay');
+  const log=document.getElementById('boot-log');
+  overlay.classList.add('active');
+  log.innerHTML='';
+
+  const lines=[
+    {t:'[ OK ]',c:'ok',  msg:'Authenticating session via Microsoft Entra ID'},
+    {t:'[SCAN]',c:'scan',msg:'Loading 7 mandatory security layer configurations'},
+    {t:'[ OK ]',c:'ok',  msg:'L1 Identity — Entra Agent ID · Key Vault · mTLS verified'},
+    {t:'[ OK ]',c:'ok',  msg:'L2 Input validation — Prompt Shields · Lakera Guard active'},
+    {t:'[ OK ]',c:'ok',  msg:'L3 Least privilege — AI Gateway · Koi Security online'},
+    {t:'[ OK ]',c:'ok',  msg:'L4–L7 Memory · Output · Oversight · Observability nominal'},
+    {t:'[SCAN]',c:'scan',msg:'Cross-referencing 10 native gap analyses'},
+    {t:'[ OK ]',c:'ok',  msg:'8 third-party integrations reachable · posture green'},
+    {t:'[ OK ]',c:'ok',  msg:'OWASP ASI / MCP / LLM / RAG coverage confirmed'},
+    {t:'[RDY ]',c:'ok',  msg:'Command Centre ready — welcome, '+name},
+  ];
+
+  let i=0;
+  const tick=()=>{
+    if(i>=lines.length){
+      setTimeout(finishBoot,450);
+      return;
+    }
+    const l=lines[i];
+    const div=document.createElement('div');
+    div.className='boot-log-line';
+    div.innerHTML=`<span class="${l.c}">${l.t}</span> <span style="color:var(--text2)">${l.msg}</span>`;
+    if(i===lines.length-1){
+      div.innerHTML+='<span class="boot-cursor"></span>';
+    }
+    log.appendChild(div);
+    i++;
+    setTimeout(tick,180+Math.random()*120);
+  };
+  tick();
+}
+
+function finishBoot(){
+  const overlay=document.getElementById('boot-overlay');
+  overlay.style.opacity='0';
+  setTimeout(()=>{
+    overlay.classList.remove('active');
+    overlay.style.opacity='';
     document.getElementById('app').classList.add('visible');
+    const name=currentUser.name;
     const ini=name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     document.getElementById('topbar-avatar').textContent=ini;
     document.getElementById('topbar-name').textContent=name.charAt(0).toUpperCase()+name.slice(1);
     document.getElementById('topbar-role').textContent=selectedRole.toUpperCase();
+    // Add shield pulse to the topbar status dot
+    const dot=document.querySelector('.topbar-logo .dot');
+    if(dot)dot.classList.add('shield-pulse');
     initApp();
-  },400);
+    // Start counter animations after dashboard is rendered
+    setTimeout(animateStatCounters,200);
+  },500);
+}
+
+// ═══════════════════════════════════
+// ANIMATED COUNTERS (stat cards roll up)
+// ═══════════════════════════════════
+function animateStatCounters(){
+  document.querySelectorAll('.stat-num').forEach(el=>{
+    const txt=(el.dataset.origText||el.textContent).trim();
+    if(!el.dataset.origText)el.dataset.origText=txt;
+    // Parse number — handle "7/7" format by animating the first part
+    const m=txt.match(/^(\d+)(.*)$/);
+    if(!m)return;
+    const target=parseInt(m[1]);
+    const suffix=m[2];
+    const duration=900;
+    const start=performance.now();
+    el.textContent='0'+suffix;
+    const step=(now)=>{
+      const p=Math.min(1,(now-start)/duration);
+      const eased=1-Math.pow(1-p,3); // easeOutCubic
+      el.textContent=Math.round(target*eased)+suffix;
+      if(p<1)requestAnimationFrame(step);
+      else el.textContent=txt;
+    };
+    requestAnimationFrame(step);
+  });
 }
 function doLogout(){document.getElementById('app').classList.remove('visible');const ls=document.getElementById('login-screen');ls.style.opacity='1';ls.style.display='flex'}
 
@@ -841,10 +1016,12 @@ function initApp(){
 // ═══════════════════════════════════
 function renderDashboard(){
   const lb=document.getElementById('layer-bars-dash');
-  if(lb)lb.innerHTML=LAYERS.map(l=>`<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:var(--text2)">${l.n}: ${l.lbl}</span><span style="color:${l.pct>=95?'var(--accent3)':'var(--warn)'};font-weight:500">${l.pct}%</span></div><div class="progress-bar"><div class="progress-fill ${l.pct>=95?'green':'warn'}" style="width:${l.pct}%"></div></div><div style="font-size:9px;color:var(--text3);margin-top:1px">${l.tools}</div></div>`).join('');
+  if(lb)lb.innerHTML=LAYERS.map((l,i)=>`<div class="layer-bar-row" style="margin-bottom:9px;animation-delay:${0.6+i*0.1}s"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:var(--text2)">${l.n}: ${l.lbl}</span><span style="color:${l.pct>=95?'var(--accent3)':'var(--warn)'};font-weight:500">${l.pct}%</span></div><div class="progress-bar"><div class="progress-fill ${l.pct>=95?'green':'warn'}" style="width:0" data-target="${l.pct}"></div></div><div style="font-size:9px;color:var(--text3);margin-top:1px">${l.tools}</div></div>`).join('');
   const od=document.getElementById('owasp-dash');
   const ow=[{lbl:'OWASP ASI Top 10',pct:100},{lbl:'OWASP MCP Top 10',pct:100},{lbl:'OWASP LLM Top 10',pct:100},{lbl:'RAG-01 to RAG-06',pct:100},{lbl:'MITRE ATLAS',pct:92}];
-  if(od)od.innerHTML=ow.map(o=>`<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:var(--text2)">${o.lbl}</span><span style="font-weight:500;color:var(--accent)">${o.pct}%</span></div><div class="progress-bar"><div class="progress-fill blue" style="width:${o.pct}%"></div></div></div>`).join('');
+  if(od)od.innerHTML=ow.map((o,i)=>`<div class="layer-bar-row" style="margin-bottom:9px;animation-delay:${0.7+i*0.1}s"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:var(--text2)">${o.lbl}</span><span style="font-weight:500;color:var(--accent)">${o.pct}%</span></div><div class="progress-bar"><div class="progress-fill blue" style="width:0" data-target="${o.pct}"></div></div></div>`).join('');
+  // Trigger the bar fills after a brief delay so the stagger animation plays first
+  setTimeout(()=>{document.querySelectorAll('.progress-fill[data-target]').forEach(el=>{el.style.width=el.dataset.target+'%'})},300);
   const nm=document.getElementById('native-mini');
   if(nm)nm.innerHTML=NATIVE_CONTROLS.slice(0,6).map(n=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">${n.ctrl}</span><span style="color:var(--accent3)">✓</span></div>`).join('')+'<div style="font-size:10px;color:var(--text3);margin-top:6px">+4 more native controls →</div>';
   const gm=document.getElementById('gap-mini');
